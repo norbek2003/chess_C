@@ -19,3 +19,8 @@ struct game {
   struct side * sides[2];
 };
   
+
+#define RESET "\x1b[0m"
+#define B_WHITE "\033[107m"
+#define B_BLACK "\033[40m"
+#define B_GREEN "\033[42m"
