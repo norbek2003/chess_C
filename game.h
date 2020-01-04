@@ -1,8 +1,5 @@
-
-
 typedef enum {Pawn, Bishop, Knight, Rook, Queen, King} PIECE_TYPE;
 typedef enum {White, Black} SIDE;
-typedef char BOARD[8][8];
 
 struct piece {
   PIECE_TYPE type;
@@ -17,6 +14,7 @@ struct side {
 };
 struct game {
   struct side * sides[2];
+  struct piece * board[8][8];
 };
   
 

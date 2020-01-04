@@ -3,30 +3,19 @@
 #include "game.h"
 
 char piece_symbol(struct piece * piece){
+  if(!piece)
+    return ' ';
   return (piece->side ? "pbnrqk":"PBNRQK")[piece->type];
 }
 void print_piece(struct piece * piece){
   printf("%c", piece_symbol(piece));
 }
 void print_board(struct game * game){
-  BOARD board;
-  for(int y = 0; y < 8; y++){
-    for(int x = 0; x < 8; x++){
-      board[y][x] = ' ';
-    }
-  }
-  for(int side = 0; side < 2; side ++){
-    for(int i = 0; i < 16; i ++){
-      struct piece * piece = game->sides[side]->pieces[i];
-      board[piece->y][piece->x] = piece_symbol(piece);
-    }
-  }
-
   for(int y = 7; y >= 0; y--){
     printf("%d ", y + 1);
     for(int x = 0; x < 8; x++){
       char * background = (((x + 1) % 2 && (y + 1) % 2) || (x % 2 && y % 2)) ? B_GREEN : B_WHITE;
-      printf("\033[30m%s %c " "\033[0m", background, board[y][x]);
+      printf("\033[30m%s %c " "\033[0m", background, piece_symbol(game->board[y][x]));
     }
     printf("\n");
   }
@@ -61,6 +50,17 @@ struct game * generate_game(){
     game->sides[side] = malloc(sizeof(struct side));
     game->sides[side]->side = side;
     generate_pieces(game->sides[side]);
+  }
+  for(int y = 0; y < 8; y++){
+    for(int x = 0; x < 8; x++){
+      game->board[y][x] = 0;
+    }
+  }
+  for(int side = 0; side < 2; side ++){
+    for(int i = 0; i < 16; i ++){
+      struct piece * piece = game->sides[side]->pieces[i];
+      game->board[piece->y][piece->x] = piece;
+    }
   }
   return game;
 }
