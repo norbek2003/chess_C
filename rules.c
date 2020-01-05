@@ -45,8 +45,24 @@ int is_valid_move_bishop(GAME * game, PIECE * piece, int x, int y){
 int is_valid_move_rook(GAME * game, PIECE * piece, int x, int y){
   int x_dir = piece->x == x ? 0 : (- (piece->x - x) / abs(piece->x - x));
   int y_dir = piece->y == y ? 0 : (- (piece->y - y) / abs(piece->y - y));
-  //printf("\n%d, %d, %d, %d\n", x, y, x_dir, y_dir);
   return (x_dir * x_dir + y_dir * y_dir == 1) && !is_blocked_py_piece(game, piece, x, y, x_dir, y_dir);
+}
+int is_valid_move_king(GAME * game, PIECE * piece, int x, int y){
+  if(abs(piece->x - x) >1 || abs(piece->y - y) > 1)
+    return 0;
+  PIECE * new_pos = game->board[y][x];
+  game->board[y][x] = game->board[piece->y][piece->x] = 0;
+  for(int i = 0; i < 32; i++){
+    PIECE * p = game->pieces[i];
+    if(p && p->side != piece->side && is_valid_move(game, p, x, y)){
+      game->board[piece->y][piece->x] = piece;
+      game->board[y][x] = new_pos;
+      return 0;
+    }
+  }
+  game->board[piece->y][piece->x] = piece;
+  game->board[y][x] = new_pos;
+  return 1;
 }
 int is_valid_move(GAME * game, PIECE * piece, int x, int y){
   if(x == -1 || x == 8 || y == -1 || y == 8)
@@ -67,7 +83,7 @@ int is_valid_move(GAME * game, PIECE * piece, int x, int y){
   case Queen:
     return is_valid_move_rook(game, piece, x, y) || is_valid_move_bishop(game, piece, x, y);
   case King:
-    break;
+    return is_valid_move_king(game, piece, x, y);
   }
   return 0;
 }

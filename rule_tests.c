@@ -100,12 +100,27 @@ void queen_test(){
   game->board[3][4]->type = game->board[4][3]->type = Queen;
   print_possible_positions(game);
 }
-
+void king_test(){
+    printf("\n========== TESTING KINGS =========\n\n");
+  GAME * game = generate_game();
+  for(int i = 0; i < 32; i ++){
+    PIECE * p = game->pieces[i];
+    if(p->type != Rook && p->type != King && !(p->x == 4 && p->type == Pawn)){
+      game->board[p->y][p->x] = 0;
+      game->pieces[i] = 0;
+    }
+  }
+  move_piece(game, game->board[1][4], 4, 3);
+  move_piece(game, game->board[6][4], 3, 4);
+  game->board[3][4]->type = game->board[4][3]->type = Rook;
+  print_possible_positions(game);
+}
 int main(){
   pawn_test();
   knight_test();
   bishop_test();
   rook_test();
   queen_test();
+  king_test();
   return 0;
 }
