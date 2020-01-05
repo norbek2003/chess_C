@@ -1,10 +1,10 @@
 #include "chess_base.h"
-void print_possible_positions(GAME * game, PIECE_TYPE type){
-  print_board(game);
+void print_possible_positions(GAME * game){
+  print_board_debug(game);
   printf("\nPiece Position {Possible Moves}\n\n");
   for(int i = 0; i < 32; i++){
     PIECE * piece = game->pieces[i];
-    if(piece){// && piece->type == type){
+    if(piece){
       print_piece(piece);
       printf(" (%d, %d) { ", piece->x, piece->y);
       for(int y = 0; y < 8; y ++)
@@ -16,7 +16,7 @@ void print_possible_positions(GAME * game, PIECE_TYPE type){
   }
 }
 void pawn_test(){
-  printf("========== TESTING PAWNS ==========\n\n");
+  printf("\n========== TESTING PAWNS ==========\n\n");
   GAME * game = generate_game();
 
   move_piece(game, game->board[6][0], 2, 2);
@@ -34,10 +34,10 @@ void pawn_test(){
       game->pieces[i] = 0;
     }
   }
-  print_possible_positions(game, Pawn);
+  print_possible_positions(game);
 }
 void knight_test(){
-  printf("========== TESTING KNIGHTS =========\n\n");
+  printf("\n========== TESTING KNIGHTS =========\n\n");
   GAME * game = generate_game();
   for(int i = 0; i < 32; i ++){
     PIECE * p = game->pieces[i];
@@ -49,10 +49,27 @@ void knight_test(){
   move_piece(game, game->board[0][4], 3, 3);
   move_piece(game, game->board[7][3], 4, 4);
   game->board[3][3]->type = game->board[4][4]->type = Knight;
-  print_possible_positions(game, Knight);
+  print_possible_positions(game);
+}
+
+void bishop_test(){
+  printf("\n========== TESTING BISHOPS =========\n\n");
+  GAME * game = generate_game();
+  for(int i = 0; i < 32; i ++){
+    PIECE * p = game->pieces[i];
+    if(p->type != Bishop && p->type != King){
+      game->board[p->y][p->x] = 0;
+      game->pieces[i] = 0;
+    }
+  }
+  move_piece(game, game->board[0][4], 3, 5);
+  move_piece(game, game->board[7][3], 4, 2);
+  game->board[2][4]->type = game->board[5][3]->type = Bishop;
+  print_possible_positions(game);
 }
 int main(){
   pawn_test();
   knight_test();
+  bishop_test();
   return 0;
 }

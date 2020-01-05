@@ -20,6 +20,28 @@ int is_valid_move_knight(GAME * game, PIECE * piece, int x, int y){
   y = abs(piece->y - y);
   return y * y + x * x == 5;
 }
+int is_blocked_py_piece(GAME * game, PIECE * piece, int x, int y, int x_dir, int y_dir){
+  int xs = piece->x;
+  int ys = piece->y;
+  while(1){
+    xs += x_dir;
+    ys += y_dir;
+    if(xs == -1 || xs == 8 || ys == -1 || ys == 8)
+      break;
+    if(xs == x && ys == y)
+      break;
+    if(game->board[ys][xs])
+      return 1;
+  }
+  return 0;
+}
+int is_valid_move_bishop(GAME * game, PIECE * piece, int x, int y){
+  if(abs(piece->x - x) != abs(piece->y - y))
+    return 0;
+  int x_dir = - (piece->x - x) / abs(piece->x - x);
+  int y_dir = - (piece->y - y) / abs(piece->y - y);
+  return !is_blocked_py_piece(game, piece, x, y, x_dir, y_dir);
+}
 int is_valid_move(GAME * game, PIECE * piece, int x, int y){
   if(x == -1 || x == 8 || y == -1 || y == 8)
     return 0;
@@ -33,7 +55,7 @@ int is_valid_move(GAME * game, PIECE * piece, int x, int y){
   case Knight:
     return is_valid_move_knight(game, piece, x, y);
   case Bishop:
-    break;
+    return is_valid_move_bishop(game, piece, x, y);
   case Rook:
     break;
   case Queen:
