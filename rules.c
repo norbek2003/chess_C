@@ -65,7 +65,7 @@ int is_valid_move(GAME * game, PIECE * piece, int x, int y){
   case Rook:
     return is_valid_move_rook(game, piece, x, y);
   case Queen:
-    break;
+    return is_valid_move_rook(game, piece, x, y) || is_valid_move_bishop(game, piece, x, y);
   case King:
     break;
   }
