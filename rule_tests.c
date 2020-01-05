@@ -47,7 +47,7 @@ void knight_test(){
     }
   }
   move_piece(game, game->board[0][4], 3, 3);
-  move_piece(game, game->board[7][3], 4, 4);
+  move_piece(game, game->board[7][4], 4, 4);
   game->board[3][3]->type = game->board[4][4]->type = Knight;
   print_possible_positions(game);
 }
@@ -63,7 +63,7 @@ void bishop_test(){
     }
   }
   move_piece(game, game->board[0][4], 3, 5);
-  move_piece(game, game->board[7][3], 4, 2);
+  move_piece(game, game->board[7][4], 4, 2);
   game->board[2][4]->type = game->board[5][3]->type = Bishop;
   print_possible_positions(game);
 }
@@ -76,6 +76,8 @@ void rook_test(){
     if(p->type != Rook && p->type != King && !(p->x == 4 && p->type == Pawn)){
       game->board[p->y][p->x] = 0;
       game->pieces[i] = 0;
+    }else if(p->type = King){
+      p->type = Knight;
     }
   }
   move_piece(game, game->board[1][4], 4, 3);
@@ -93,6 +95,8 @@ void queen_test(){
       game->pieces[i] = 0;
     }else if (p->type != King){
       p->type = Queen;
+    }else{
+      p->type = Knight;
     }
   }
   move_piece(game, game->board[1][4], 4, 3);
@@ -101,7 +105,7 @@ void queen_test(){
   print_possible_positions(game);
 }
 void king_test(){
-    printf("\n========== TESTING KINGS =========\n\n");
+  printf("\n========== TESTING KINGS =========\n\n");
   GAME * game = generate_game();
   for(int i = 0; i < 32; i ++){
     PIECE * p = game->pieces[i];

@@ -35,6 +35,7 @@ void generate_pieces(struct side * side){
   for(int i = 0; i < 16; i++){
     side->pieces[i] = malloc(sizeof(PIECE));
     side->pieces[i]->captured = 0;
+    side->pieces[i]->has_moved = 0;
     side->pieces[i]->side = side->side;
   }
   for(int i = 0; i < 8; i++){
@@ -44,13 +45,14 @@ void generate_pieces(struct side * side){
   }
   int start = side->side ? 7 : 0;
   int y = start;
-  int inc = !side->side ? 1 : -1;
   PIECE_TYPE types[] = {Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook};
-  for(int i = 8; i < 16; i ++){
-    side->pieces[i]->type = types[start];
+  for(int i = 8; i < 16; i++){
+    side->pieces[i]->type = types[i - 8];
     side->pieces[i]->y = y;
     side->pieces[i]->x = i - 8;
-    start += inc;
+    if(types[i - 8] == King){
+      side->king = side->pieces[i];
+    }
   }
 }
 GAME * generate_game(){

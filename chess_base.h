@@ -10,9 +10,11 @@ typedef struct piece {
   int x;
   int y;
   int captured;
+  int has_moved;
 } PIECE;
 struct side {
   PIECE * pieces[16];
+  PIECE * king;
   SIDE side;
 };
 typedef struct game{
