@@ -42,6 +42,12 @@ int is_valid_move_bishop(GAME * game, PIECE * piece, int x, int y){
   int y_dir = - (piece->y - y) / abs(piece->y - y);
   return !is_blocked_py_piece(game, piece, x, y, x_dir, y_dir);
 }
+int is_valid_move_rook(GAME * game, PIECE * piece, int x, int y){
+  int x_dir = piece->x == x ? 0 : (- (piece->x - x) / abs(piece->x - x));
+  int y_dir = piece->y == y ? 0 : (- (piece->y - y) / abs(piece->y - y));
+  //printf("\n%d, %d, %d, %d\n", x, y, x_dir, y_dir);
+  return (x_dir * x_dir + y_dir * y_dir == 1) && !is_blocked_py_piece(game, piece, x, y, x_dir, y_dir);
+}
 int is_valid_move(GAME * game, PIECE * piece, int x, int y){
   if(x == -1 || x == 8 || y == -1 || y == 8)
     return 0;
@@ -57,7 +63,7 @@ int is_valid_move(GAME * game, PIECE * piece, int x, int y){
   case Bishop:
     return is_valid_move_bishop(game, piece, x, y);
   case Rook:
-    break;
+    return is_valid_move_rook(game, piece, x, y);
   case Queen:
     break;
   case King:

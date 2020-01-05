@@ -4,7 +4,6 @@ void move_piece(GAME * game, PIECE * piece, int x, int y){
   game->board[y][x] = piece;
   piece->x = x;
   piece->y = y;
-
 }
 char piece_symbol(PIECE * piece){
   if(!piece)
