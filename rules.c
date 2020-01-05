@@ -1,6 +1,6 @@
 #include "chess_base.h"
 
-int is_valid_move_pawn(struct game * game, struct piece * piece, int x, int y){
+int is_valid_move_pawn(GAME * game, PIECE * piece, int x, int y){
   int direction = piece->side ? -1 : 1;
   if(piece->x == x && abs(piece->y - y) <= 2 && !game->board[y][x]){
     if(piece->y + direction == y){
@@ -16,7 +16,7 @@ int is_valid_move_pawn(struct game * game, struct piece * piece, int x, int y){
   }
   return 0;
 }
-int is_valid_move(struct game * game, struct piece * piece, int x, int y){
+int is_valid_move(GAME * game, PIECE * piece, int x, int y){
   if(x == -1 || x == 8 || y == -1 || y == 8)
     return 0;
   if(piece->x == x && piece->y == y)

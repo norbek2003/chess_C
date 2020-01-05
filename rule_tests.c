@@ -1,7 +1,7 @@
 #include "chess_base.h"
 void pawn_test(){
   printf("========== TESTING PAWNS ==========\n\n");
-  struct game * game = generate_game();
+  GAME * game = generate_game();
 
   move_piece(game, game->board[6][0], 2, 2);
   move_piece(game, game->board[6][1], 4, 3);
@@ -17,7 +17,7 @@ void pawn_test(){
   print_board(game);
   printf("\nPiece Position {Possible Moves}\n\n");
   for(int i = 0; i < 32; i++){
-    struct piece * piece = game->pieces[i];
+    PIECE * piece = game->pieces[i];
     if(piece->type == Pawn){
       print_piece(piece);
       printf(" (%d, %d) { ", piece->x, piece->y);

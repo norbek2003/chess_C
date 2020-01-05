@@ -4,22 +4,22 @@
 typedef enum {Pawn, Bishop, Knight, Rook, Queen, King} PIECE_TYPE;
 typedef enum {White, Black} SIDE;
 
-struct piece {
+typedef struct piece {
   PIECE_TYPE type;
   SIDE side;
   int x;
   int y;
   int captured;
-};
+} PIECE;
 struct side {
-  struct piece * pieces[16];
+  PIECE * pieces[16];
   SIDE side;
 };
-struct game {
+typedef struct game{
   struct side * sides[2];
-  struct piece * board[8][8];
-  struct piece * pieces[32];
-};
+  PIECE * board[8][8];
+  PIECE * pieces[32];
+} GAME;
   
 
 #define RESET "\x1b[0m"

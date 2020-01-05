@@ -8,3 +8,6 @@ rules_tests.o: rule_tests.c chess_base.h
 	gcc -c rule_tests.c
 run:
 	./game
+clean:
+	rm -f *~
+	rm -f *.o

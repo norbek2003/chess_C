@@ -1,8 +1,8 @@
-int is_valid_move(struct game * game, struct piece * piece, int x, int y);
-void move_piece(struct game * game, struct piece * piece, int x, int y);
-char piece_symbol(struct piece * piece);
-void print_piece(struct piece * piece);
-void print_board(struct game * game);
+int is_valid_move(GAME * game, PIECE * piece, int x, int y);
+void move_piece(GAME * game, PIECE * piece, int x, int y);
+char piece_symbol(PIECE * piece);
+void print_piece(PIECE * piece);
+void print_board(GAME * game);
 void generate_pieces(struct side * side);
-struct game * generate_game();
+GAME * generate_game();
 
