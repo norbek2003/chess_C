@@ -1,7 +1,11 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include "game.h"
+#include "chess_base.h"
+void move_piece(struct game * game, struct piece * piece, int x, int y){
+  game->board[piece->y][piece->x] = 0;
+  game->board[y][x] = piece;
+  piece->x = x;
+  piece->y = y;
 
+}
 char piece_symbol(struct piece * piece){
   if(!piece)
     return ' ';
@@ -60,12 +64,27 @@ struct game * generate_game(){
     for(int i = 0; i < 16; i ++){
       struct piece * piece = game->sides[side]->pieces[i];
       game->board[piece->y][piece->x] = piece;
+      game->pieces[side * 16 + i] = piece;
     }
   }
   return game;
 }
+/*
 int main(){
-  struct game * g = generate_game();
-  print_board(g);
+  struct game * game = generate_game();
+  game->board[2][2] = game->board[3][4] = malloc(sizeof(struct game));
+  game->board[2][2]->side = game->board[3][4]->side = Black;
+  print_board(game);
+  for(int i = 0; i < 32; i++){
+    struct piece * piece = game->pieces[i];
+    print_piece(piece);
+    printf(" (%d, %d) { ", piece->x, piece->y);
+    for(int y = 0; y < 8; y ++)
+      for(int x = 0; x < 8; x++)
+	if(is_valid_move(game, piece, x, y))
+	   printf("(%d, %d) ", x, y);
+    printf("}\n");
+  }
   return 0;
 }
+*/
