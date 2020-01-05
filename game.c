@@ -14,16 +14,22 @@ char piece_symbol(PIECE * piece){
 void print_piece(PIECE * piece){
   printf("%c", piece_symbol(piece));
 }
-void print_board(GAME * game){
+void print_board_base(GAME * game, int col_inc, char * row){
   for(int y = 7; y >= 0; y--){
-    printf("%d ", y + 1);
+    printf("%d ", y + col_inc);
     for(int x = 0; x < 8; x++){
       char * background = (((x + 1) % 2 && (y + 1) % 2) || (x % 2 && y % 2)) ? B_GREEN : B_WHITE;
       printf("\033[30m%s %c " "\033[0m", background, piece_symbol(game->board[y][x]));
     }
     printf("\n");
   }
-  printf("   A  B  C  D  E  F  G  H\n");
+  printf("%s", row);
+}
+void print_board(GAME * game){
+  print_board_base(game, 1, "   A  B  C  D  E  F  G  H \n");
+}
+void print_board_debug(GAME * game){
+  print_board_base(game, 0, "   0  1  2  3  4  5  6  7 \n");
 }
 void generate_pieces(struct side * side){
   int i = 0;
