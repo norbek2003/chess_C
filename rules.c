@@ -11,21 +11,27 @@ int is_valid_move_pawn(GAME * game, PIECE * piece, int x, int y){
     }
   }
   if(abs(piece->x - x) == 1 && y - piece->y == direction && game->board[y][x] && game->board[y][x]->side != piece->side){
-    //printf("\n(%d, %d, %d, %d, %d, 3)", piece->x, piece->y, x, y, direction);
     return 1;
   }
   return 0;
+}
+int is_valid_move_knight(GAME * game, PIECE * piece, int x, int y){
+  x = abs(piece->x - x);
+  y = abs(piece->y - y);
+  return y * y + x * x == 5;
 }
 int is_valid_move(GAME * game, PIECE * piece, int x, int y){
   if(x == -1 || x == 8 || y == -1 || y == 8)
     return 0;
   if(piece->x == x && piece->y == y)
     return 0;
+  if(game->board[y][x] && game->board[y][x]->side == piece->side)
+    return 0;
   switch(piece->type){
   case Pawn:
     return is_valid_move_pawn(game, piece, x, y);
   case Knight:
-    break;
+    return is_valid_move_knight(game, piece, x, y);
   case Bishop:
     break;
   case Rook:
