@@ -1,11 +1,9 @@
 #include "chess_base.h"
-
+int is_valid_move_for_piece(GAME * game, PIECE * piece, int x, int y);
 int is_location_attacked(GAME * game, SIDE by_side, int x, int y){
-  //printf("are we?\n");
   for(int i = 0; i < 16; i++){
     PIECE * p = game->sides[by_side]->pieces[i];
-    //print_piece(p);
-    if(p && !p->captured && is_valid_move(game, p, x, y)){
+    if(p && !p->captured && is_valid_move_for_piece(game, p, x, y)){
       return 1;
     }
   }
@@ -76,8 +74,10 @@ int is_valid_castle(GAME * game, PIECE * king, int x, int y){
   return rook->x + 1;
 }
 int is_valid_move_king(GAME * game, PIECE * piece, int x, int y){
-  if(abs(piece->x - x) > 1 || abs(piece->y - y) > 1)
+  if(abs(piece->x - x) == 2 && piece->y == y)
     return is_valid_castle(game, piece, x, y);
+  if(abs(piece->x - x) > 1 || abs(piece->y - y) > 1)
+    return 0;
   PIECE * new_pos = game->board[y][x];
   game->board[y][x] = game->board[piece->y][piece->x] = 0;
   int r = !is_location_attacked(game, !piece->side, x, y);
@@ -85,7 +85,10 @@ int is_valid_move_king(GAME * game, PIECE * piece, int x, int y){
   game->board[y][x] = new_pos;
   return r;
 }
-int is_valid_move(GAME * game, PIECE * piece, int x, int y){
+int is_valid_move_for_piece(GAME * game, PIECE * piece, int x, int y){
+  //printf("\n---%d %c (%d, %d) (%d, %d)\n", piece->side, piece_symbol(piece), piece->x, piece->y, x, y);
+  if(piece->captured)
+    return 0;
   if(x == -1 || x == 8 || y == -1 || y == 8)
     return 0;
   if(piece->x == x && piece->y == y)
@@ -107,4 +110,23 @@ int is_valid_move(GAME * game, PIECE * piece, int x, int y){
     return is_valid_move_king(game, piece, x, y);
   }
   return 0;
+}
+int is_valid_move(GAME * game, PIECE * piece, int x, int y){
+  int is_valid = is_valid_move_for_piece(game, piece, x, y);
+  int orig_x = piece->x;
+  int orig_y = piece->y;
+  if(!is_valid)
+    return 0;
+  PIECE * captured_piece = game->board[y][x];
+  if(captured_piece)
+    captured_piece->captured = 1;
+  move_piece(game, piece, x, y);
+  if(in_check(game, piece->side))
+    is_valid = 0;
+  move_piece(game, piece, orig_x, orig_y);
+  if(captured_piece){
+    captured_piece->captured = 0;
+    move_piece(game, captured_piece, x, y);
+  }
+  return is_valid;
 }

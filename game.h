@@ -1,4 +1,6 @@
 int is_valid_move(GAME * game, PIECE * piece, int x, int y);
+int is_valid_move_for_piece(GAME * game, PIECE * piece, int x, int y);
+
 void move_piece(GAME * game, PIECE * piece, int x, int y);
 char piece_symbol(PIECE * piece);
 void print_piece(PIECE * piece);

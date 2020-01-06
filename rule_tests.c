@@ -9,7 +9,7 @@ void print_possible_positions(GAME * game){
       printf(" (%d, %d) { ", piece->x, piece->y);
       for(int y = 0; y < 8; y ++)
 	for(int x = 0; x < 8; x++)
-	  if(is_valid_move(game, piece, x, y))
+	  if(is_valid_move_for_piece(game, piece, x, y))
 	    printf("(%d, %d) ", x, y);
       printf("}\n");
     }
@@ -51,7 +51,6 @@ void knight_test(){
   game->board[3][3]->type = game->board[4][4]->type = Knight;
   print_possible_positions(game);
 }
-
 void bishop_test(){
   printf("\n========== TESTING BISHOPS =========\n\n");
   GAME * game = generate_game();
@@ -67,7 +66,6 @@ void bishop_test(){
   game->board[2][4]->type = game->board[5][3]->type = Bishop;
   print_possible_positions(game);
 }
-
 void rook_test(){
   printf("\n========== TESTING ROOKS ===========\n\n");
   GAME * game = generate_game();
@@ -119,6 +117,34 @@ void king_test(){
   game->board[3][4]->type = game->board[4][3]->type = Rook;
   print_possible_positions(game);
 }
+void setup_test(){
+  printf("\n========== TESTING BOARD =========\n\n");
+  GAME * game = generate_game();
+  print_possible_positions(game);
+}
+void check_test(){
+  printf("\n========== TESTING CHECK =========\n(WHITE TO MOVE)\n\n");
+  GAME * game = generate_game();
+  move_piece(game, game->board[1][3], 3, 2);
+  move_piece(game, game->board[6][4], 4, 5);
+  move_piece(game, game->board[0][6], 5, 2);
+  move_piece(game, game->board[7][5], 1, 3);
+  print_board_debug(game);
+  printf("\nPiece Position {Possible Moves}\n\n");
+  for(int i = 0; i < 16; i++){
+    PIECE * piece = game->sides[0]->pieces[i];
+    if(piece){
+      print_piece(piece);
+      printf(" (%d, %d) { ", piece->x, piece->y);
+      for(int y = 0; y < 8; y ++)
+	for(int x = 0; x < 8; x++)
+	  if(is_valid_move(game, piece, x, y))
+	    printf("(%d, %d) ", x, y);
+      printf("}\n");
+    }
+  }
+
+}
 int main(){
   pawn_test();
   knight_test();
@@ -126,5 +152,7 @@ int main(){
   rook_test();
   queen_test();
   king_test();
+  setup_test();
+  check_test();
   return 0;
 }
