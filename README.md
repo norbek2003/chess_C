@@ -22,8 +22,8 @@
   - I have NEVER been correct about the timeline for a project. Hofstadter’s Law, if you’ve never heard it, states: “It always takes longer than you expect, even when you take into account Hofstadter’s Law.”
   - It will DEFINITELY be finished before "Friday 1/17, 8am".
 ### Just Spitballing Here, Don't Quote Me On It ...
-- [ ] Jan  6,2020 Basic structs and relationships between them created
-- [ ] Jan 10, 2020 Game rules and move eligibility checking set up
+- [x] Jan  6,2020 Basic structs and relationships between them created
+- [x] Jan 10, 2020 Game rules and move eligibility checking set up
 - [ ] Jan 14, 2020 Hopefully I'll figure out how networks work by then
 - [ ] Jan 16, 2020 All ~~bugs~~ surprise features should have been ~~fixed~~ postponed for a later release.
 - [ ] Jan 17, 2020, (Pre-8AM) maybe I'll have time to try and add graphics
