@@ -86,7 +86,6 @@ int is_valid_move_king(GAME * game, PIECE * piece, int x, int y){
   return r;
 }
 int is_valid_move_for_piece(GAME * game, PIECE * piece, int x, int y){
-  //printf("\n---%d %c (%d, %d) (%d, %d)\n", piece->side, piece_symbol(piece), piece->x, piece->y, x, y);
   if(piece->captured)
     return 0;
   if(x == -1 || x == 8 || y == -1 || y == 8)
@@ -129,4 +128,18 @@ int is_valid_move(GAME * game, PIECE * piece, int x, int y){
     move_piece(game, captured_piece, x, y);
   }
   return is_valid;
+}
+
+int in_draw(GAME * game){
+  for(int i = 0; i < 16; i++){
+    PIECE * p = game->sides[game->turn]->pieces[i];
+    for(int y = 0; y < 8; y++){
+      for(int x = 0; x < 8; x++){
+	if(is_valid_move(game, p, x, y)){
+	  return 0;
+	}
+      }
+    }
+  }
+  return 1;
 }
