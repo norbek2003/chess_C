@@ -8,3 +8,5 @@
 ## Jan 5, 2019
 - Basic refactoring
 - Finished unit tests and rules for all pieces as well as checking whether or not the move would result in check
+## Jan 6, 2019
+- The game is now playable on a single computer. Promotion and En Passant are yet to be added. Castling is fully supported!

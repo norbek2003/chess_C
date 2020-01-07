@@ -6,6 +6,7 @@ void move_piece(GAME * game, PIECE * piece, int x, int y){
   piece->y = y;
 }
 int attempt_piece_move(GAME * game, PIECE * piece, int x, int y){
+  int orig_x = piece->x;
   if(!piece || piece->side != game->turn)
     return 0;
   int is_valid = is_valid_move(game, piece, x, y);
@@ -16,6 +17,10 @@ int attempt_piece_move(GAME * game, PIECE * piece, int x, int y){
     captured->captured = 1;
   move_piece(game, piece, x, y);
   piece->has_moved = 1;
+  if(is_valid > 1){ // Castle
+    int x_dir = (- (orig_x - x) / abs(orig_x - x));
+    move_piece(game, game->board[y][is_valid - 2], x - x_dir, y);
+  }
   return is_valid;
 }
 void get_move_from_stdin(int * pos){

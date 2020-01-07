@@ -87,7 +87,7 @@ int is_valid_castle(GAME * game, PIECE * king, int x, int y){
     return 0;
   if(is_location_attacked(game, king->side ? Black : White, x + x_dir, y) || is_location_attacked(game, king->side ? Black : White, x + (x_dir * 2), y))
     return 0;
-  return rook->x + 1;
+  return rook->x + 2;
 }
 int is_valid_move_king(GAME * game, PIECE * piece, int x, int y){
   if(abs(piece->x - x) == 2 && piece->y == y)
