@@ -1,9 +1,37 @@
 #include "chess_base.h"
+#include <unistd.h>
 void move_piece(GAME * game, PIECE * piece, int x, int y){
   game->board[piece->y][piece->x] = 0;
   game->board[y][x] = piece;
   piece->x = x;
   piece->y = y;
+}
+int attempt_piece_move(GAME * game, PIECE * piece, int x, int y){
+  if(!piece || piece->side != game->turn)
+    return 0;
+  int is_valid = is_valid_move(game, piece, x, y);
+  if(!is_valid)
+    return 0;
+  PIECE * captured = game->board[y][x];
+  if(captured)
+    captured->captured = 1;
+  move_piece(game, piece, x, y);
+  piece->has_moved = 1;
+  return is_valid;
+}
+void get_move_from_stdin(int * pos){
+  printf("please input move->");
+  char *buffer = NULL;
+  int read;
+  unsigned int len;
+  read = getline(&buffer, &len, stdin);
+  if (-1 != read)
+    puts(buffer);
+  pos[0] = toupper(buffer[0]) - 65;
+  pos[1] = toupper(buffer[1]) - 49;
+  pos[2] = toupper(buffer[2]) - 65;
+  pos[3] = toupper(buffer[3]) - 49;
+  printf("\n");
 }
 char piece_symbol(PIECE * piece){
   if(!piece)
@@ -74,6 +102,38 @@ GAME * generate_game(){
       game->pieces[side * 16 + i] = piece;
     }
   }
+  game->turn = White;
   return game;
 }
-
+void print_location(int x, int y){
+  printf("%c%d", "ABCDEFGH"[x], y);
+}
+void play_game(){
+  GAME * game = generate_game();
+  printf("=====Play Chess============\n");
+  print_board(game);
+  int move [4] = {-1, -1, -1, -1};
+  while(1){
+    printf("%s TO MOVE\n", game->turn ? "BLACK" : "WHITE");
+    get_move_from_stdin(move);
+    if(move[0] == -2){
+      for(int i = 0; i < 16; i++){
+      }
+    }
+    if(-1 < move[0] && move[0] < 8 && -1 < move[0] && move[0] < 8 && -1 < move[0] && move[0] < 8 && -1 < move[0] && move[0] < 8){
+      if(attempt_piece_move(game, game->board[move[1]][move[0]], move[2], move[3])){
+	game->turn = !game->turn;
+	print_board(game);
+      }
+    }
+    memset(move, -1, 4);
+    if(in_draw(game)){
+      if(in_check(game, game->turn)){
+	printf("%s WINS!\n", game->turn ? "WHITE" : "BLACK");
+	return 0;
+      }
+      printf("DRAW. \n");
+      return 0;
+    }
+  }
+}

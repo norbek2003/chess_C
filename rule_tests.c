@@ -143,7 +143,6 @@ void check_test(){
       printf("}\n");
     }
   }
-
 }
 int main(){
   pawn_test();
@@ -154,5 +153,6 @@ int main(){
   king_test();
   setup_test();
   check_test();
+  play_game();
   return 0;
 }
