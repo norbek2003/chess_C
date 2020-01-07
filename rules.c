@@ -1,5 +1,5 @@
 #include "chess_base.h"
-int is_valid_move_for_piece(GAME * game, PIECE * piece, int x, int y);
+
 int is_location_attacked(GAME * game, SIDE by_side, int x, int y){
   for(int i = 0; i < 16; i++){
     PIECE * p = game->sides[by_side]->pieces[i];
@@ -9,10 +9,25 @@ int is_location_attacked(GAME * game, SIDE by_side, int x, int y){
   }
   return 0;
 }
+
 int in_check(GAME * game, SIDE side){
   PIECE * king = game->sides[side]->king;
   return is_location_attacked(game, !side, king->x, king->y);
 }
+int in_draw(GAME * game){
+  for(int i = 0; i < 16; i++){
+    PIECE * p = game->sides[game->turn]->pieces[i];
+    for(int y = 0; y < 8; y++){
+      for(int x = 0; x < 8; x++){
+	if(is_valid_move(game, p, x, y)){
+	  return 0;
+	}
+      }
+    }
+  }
+  return 1;
+}
+
 int is_blocked_py_piece(GAME * game, PIECE * piece, int x, int y, int x_dir, int y_dir){
   int xs = piece->x;
   int ys = piece->y;
@@ -60,6 +75,7 @@ int is_valid_move_rook(GAME * game, PIECE * piece, int x, int y){
   int y_dir = piece->y == y ? 0 : (- (piece->y - y) / abs(piece->y - y));
   return (x_dir * x_dir + y_dir * y_dir == 1) && !is_blocked_py_piece(game, piece, x, y, x_dir, y_dir);
 }
+
 int is_valid_castle(GAME * game, PIECE * king, int x, int y){
   if(in_check(game, king->side) || king->has_moved  || king->y != y || (x != 2 && x != 6))
     return 0;
@@ -85,6 +101,7 @@ int is_valid_move_king(GAME * game, PIECE * piece, int x, int y){
   game->board[y][x] = new_pos;
   return r;
 }
+
 int is_valid_move_for_piece(GAME * game, PIECE * piece, int x, int y){
   if(piece->captured)
     return 0;
@@ -130,16 +147,3 @@ int is_valid_move(GAME * game, PIECE * piece, int x, int y){
   return is_valid;
 }
 
-int in_draw(GAME * game){
-  for(int i = 0; i < 16; i++){
-    PIECE * p = game->sides[game->turn]->pieces[i];
-    for(int y = 0; y < 8; y++){
-      for(int x = 0; x < 8; x++){
-	if(is_valid_move(game, p, x, y)){
-	  return 0;
-	}
-      }
-    }
-  }
-  return 1;
-}

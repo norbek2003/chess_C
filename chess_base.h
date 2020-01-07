@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <unistd.h>
+
 typedef enum {Pawn, Bishop, Knight, Rook, Queen, King} PIECE_TYPE;
 typedef enum {White, Black} SIDE;
 
@@ -32,3 +34,4 @@ typedef struct game{
 #define ROW "ABCDEFGH"
 
 #include "game.h"
+#include "rules.h"

@@ -1,5 +1,4 @@
 #include "chess_base.h"
-#include <unistd.h>
 void move_piece(GAME * game, PIECE * piece, int x, int y){
   game->board[piece->y][piece->x] = 0;
   game->board[y][x] = piece;
@@ -130,10 +129,10 @@ void play_game(){
     if(in_draw(game)){
       if(in_check(game, game->turn)){
 	printf("%s WINS!\n", game->turn ? "WHITE" : "BLACK");
-	return 0;
+	return;
       }
       printf("DRAW. \n");
-      return 0;
+      return;
     }
   }
 }
