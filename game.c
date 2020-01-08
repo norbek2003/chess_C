@@ -23,18 +23,18 @@ int attempt_piece_move(GAME * game, PIECE * piece, int x, int y){
   }
   return is_valid;
 }
-void get_move_from_stdin(int * pos){
-  printf("please input move->");
-  char *buffer = NULL;
-  int read;
-  unsigned int len;
-  read = getline(&buffer, &len, stdin);
-  if (-1 != read)
-    puts(buffer);
-  pos[0] = toupper(buffer[0]) - 65;
-  pos[1] = toupper(buffer[1]) - 49;
-  pos[2] = toupper(buffer[2]) - 65;
-  pos[3] = toupper(buffer[3]) - 49;
+void get_move_from_stdin(int * move){
+  while(!(-1 < move[0] && move[0] < 8 && -1 < move[1] && move[1] < 8 && -1 < move[2] && move[2] < 8 && -1 < move[3] && move[3] < 8)){
+    printf("Please input move->");
+    char *buffer = NULL;
+    int read;
+    unsigned int len;
+    read = getline(&buffer, &len, stdin);
+    move[0] = toupper(buffer[0]) - 65;
+    move[1] = toupper(buffer[1]) - 49;
+    move[2] = toupper(buffer[2]) - 65;
+    move[3] = toupper(buffer[3]) - 49;
+  }
   printf("\n");
 }
 char piece_symbol(PIECE * piece){
@@ -124,12 +124,12 @@ void play_game(){
       for(int i = 0; i < 16; i++){
       }
     }
-    if(-1 < move[0] && move[0] < 8 && -1 < move[0] && move[0] < 8 && -1 < move[0] && move[0] < 8 && -1 < move[0] && move[0] < 8){
-      if(attempt_piece_move(game, game->board[move[1]][move[0]], move[2], move[3])){
-	game->turn = !game->turn;
-	print_board(game);
-      }
+
+    if(attempt_piece_move(game, game->board[move[1]][move[0]], move[2], move[3])){
+      game->turn = !game->turn;
+      print_board(game);
     }
+
     memset(move, -1, 4);
     if(in_draw(game)){
       if(in_check(game, game->turn)){
