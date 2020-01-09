@@ -4,7 +4,6 @@
 int main(int argc, char **argv) {
   GAME * game = generate_game();
   print_board(game);
-  printf("WHITE TO MOVE...\n");
   int server_socket;
   char buffer[BUFFER_SIZE];
   int move [4] = {-1, -1, -1, -1};
@@ -16,20 +15,21 @@ int main(int argc, char **argv) {
     server_socket = client_setup( TEST_IP );
   int game_won = 0;
   while (!game_won) {
+    printf("WHITE TO MOVE...\n");
     read(server_socket, buffer, sizeof(buffer));
+    printf("WHITE PLAYED: %s\n\n", buffer);
     attempt_piece_move(game, game->board[buffer[1] - 49][buffer[0] - 65], buffer[2] - 65, buffer[3] - 49);
     print_board(game);
     game->turn = !game->turn;
-    printf("BLACK TO MOVE...\n");
     if(in_draw(game)){
       if(in_check(game, game->turn)){
 	printf("%s WINS!\n", game->turn ? "WHITE" : "BLACK");
+      }else{
+	printf("STALEMATE. \n");
       }
-      printf("DRAW. \n");
-      game_won = 1;
       return 0;
     }
-
+    printf("BLACK TO MOVE!\n");
     while(1){
       memset(buffer, 0, BUFFER_SIZE);
       memset(move, -1, 4);
@@ -38,7 +38,6 @@ int main(int argc, char **argv) {
       if(r){
 	game->turn = !game->turn;
 	print_board(game);
-	printf("WHITE TO MOVE...\n");
 	break;
       }
     }
@@ -51,9 +50,10 @@ int main(int argc, char **argv) {
     if(in_draw(game)){
       if(in_check(game, game->turn)){
 	printf("%s WINS!\n", game->turn ? "WHITE" : "BLACK");
+      }else{
+	printf("STALEMATE. \n");
       }
-      printf("DRAW. \n");
-      game_won = 1;
+      exit(0);
     }
   }
 }

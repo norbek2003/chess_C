@@ -8,7 +8,6 @@ int main() {
 
   int listen_socket;
   int client_socket;
-  int f;
   int subserver_count = 0;
   char buffer[BUFFER_SIZE];
 
@@ -19,11 +18,7 @@ int main() {
 
   while (1) {
     client_socket = server_connect(listen_socket);
-    f = fork();
-    if (f == 0)
-      subserver(client_socket);
-    else
-      close(client_socket);
+    subserver(client_socket);
   }
 }
 
@@ -33,17 +28,15 @@ void subserver(int client_socket) {
   char buffer[BUFFER_SIZE];
   memset(buffer, 0, BUFFER_SIZE);
   int move [4] = {-1, -1, -1, -1};
-  printf("WHITE TO MOVE\n");
+  printf("WHITE TO MOVE!\n");
   while(1){
     memset(buffer, 0, BUFFER_SIZE);
     memset(move, -1, 4);
     get_move_from_stdin(move);
     int r = attempt_piece_move(game, game->board[move[1]][move[0]], move[2], move[3]);
-    printf("%d\n", r);
     if(r){
       game->turn = !game->turn;
       print_board(game);
-      printf("BLACK TO MOVE...\n");
       break;
     }
   }
@@ -54,8 +47,9 @@ void subserver(int client_socket) {
   for(int i = 0; i < 4; i++) buffer[i] = move[i];
   write(client_socket, buffer, sizeof(buffer));
   int game_won = 0;
-  while (!game_won && read(client_socket, buffer, sizeof(buffer))) {
-    printf("[subserver %d] received: [%s]\n", getpid(), buffer);
+  printf("BLACK TO MOVE...\n");
+  while (read(client_socket, buffer, sizeof(buffer))) {
+    printf("BLACK PLAYED: %s\n\n", buffer);
     attempt_piece_move(game, game->board[buffer[1] - 49][buffer[0] - 65], buffer[2] - 65, buffer[3] - 49);
     print_board(game);
     game->turn = !game->turn;    
@@ -63,18 +57,15 @@ void subserver(int client_socket) {
       if(in_check(game, game->turn)){
 	printf("%s WINS!\n", game->turn ? "WHITE" : "BLACK");
       }else{
-	printf("DRAW. \n");
+	printf("STALEMATE. \n");
       }
       exit(0);
     }
-    
-
     while(1){
       memset(buffer, 0, BUFFER_SIZE);
       memset(move, -1, 4);
       get_move_from_stdin(move);
       int r = attempt_piece_move(game, game->board[move[1]][move[0]], move[2], move[3]);
-      printf("%d\n", r);
       if(r){
 	game->turn = !game->turn;
 	print_board(game);
@@ -91,21 +82,12 @@ void subserver(int client_socket) {
     if(in_draw(game)){
       if(in_check(game, game->turn)){
 	printf("%s WINS!\n", game->turn ? "WHITE" : "BLACK");
+      }else{
+	printf("STALEMATE. \n");
       }
-      printf("DRAW. \n");
-      game_won = 1;
+      exit(0);
     }
-  }//end read loop
+  }
   close(client_socket);
   exit(0);
-}
-
-void process(char * s) {
-  while (*s) {
-    if (*s >= 'a' && *s <= 'z')
-      *s = ((*s - 'a') + 13) % 26 + 'a';
-    else  if (*s >= 'A' && *s <= 'Z')
-      *s = ((*s - 'a') + 13) % 26 + 'a';
-    s++;
-  }
 }
