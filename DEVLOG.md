@@ -10,3 +10,5 @@
 - Finished unit tests and rules for all pieces as well as checking whether or not the move would result in check
 ## Jan 6, 2019
 - The game is now playable on a single computer. Promotion and En Passant are yet to be added. Castling is fully supported!
+## Jan 8, 3019
+- The game mostly works over networks. They gameplay functions. Unfortunately, the game ending (Draw / Checkmate) still has some kinks that need to be worked out (over the network).

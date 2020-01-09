@@ -6,9 +6,9 @@ void move_piece(GAME * game, PIECE * piece, int x, int y){
   piece->y = y;
 }
 int attempt_piece_move(GAME * game, PIECE * piece, int x, int y){
-  int orig_x = piece->x;
   if(!piece || piece->side != game->turn)
     return 0;
+  int orig_x = piece->x;
   int is_valid = is_valid_move(game, piece, x, y);
   if(!is_valid)
     return 0;
@@ -34,6 +34,7 @@ void get_move_from_stdin(int * move){
     move[1] = toupper(buffer[1]) - 49;
     move[2] = toupper(buffer[2]) - 65;
     move[3] = toupper(buffer[3]) - 49;
+    //printf("%d %d %d %d\n", move[0], move[1], move[2], move[3]);
   }
   printf("\n");
 }
@@ -112,6 +113,7 @@ GAME * generate_game(){
 void print_location(int x, int y){
   printf("%c%d", "ABCDEFGH"[x], y);
 }
+
 void play_game(){
   GAME * game = generate_game();
   printf("=====Play Chess============\n");
@@ -120,11 +122,7 @@ void play_game(){
   while(1){
     printf("%s TO MOVE\n", game->turn ? "BLACK" : "WHITE");
     get_move_from_stdin(move);
-    if(move[0] == -2){
-      for(int i = 0; i < 16; i++){
-      }
-    }
-
+    //If ? move[0] = -2
     if(attempt_piece_move(game, game->board[move[1]][move[0]], move[2], move[3])){
       game->turn = !game->turn;
       print_board(game);
@@ -139,5 +137,6 @@ void play_game(){
       printf("DRAW. \n");
       return;
     }
+    //sleep(1);
   }
 }
