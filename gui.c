@@ -1,82 +1,102 @@
 #include <gtk/gtk.h>
+#include "chess_base.h"
+struct gui_data;
+typedef struct{
+  int x;
+  int y;
+  struct gui_data * gui_data;
+} POSITION;
+typedef struct gui_data{
+  GAME * game;
+  POSITION * selected_piece;
+  GtkWidget * grid[8][8];
+} GUI_DATA;
 
-static void print_hello (GtkWidget *widget, gpointer data){
-  g_print ("Hello World\n");
-  GdkRGBA color;
- gdk_rgba_parse (&color, "orange");
- gtk_widget_override_background_color(GTK_WIDGET(widget),
- GTK_STATE_FLAG_NORMAL, &color);
-  /* GdkColor color; */
+void myCSS(void){
+  GtkCssProvider *provider;
+  GdkDisplay *display;
+  GdkScreen *screen;
 
-  /* gdk_color_parse ("red", &color); */
+  provider = gtk_css_provider_new ();
+  display = gdk_display_get_default ();
+  screen = gdk_display_get_default_screen (display);
+  gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-  /* gtk_widget_override_background_color( GTK_WIDGET(button), GTK_STATE_NORMAL, &color); */
+  const gchar *myCssFile = "gui.css";
+  GError *error = 0;
 
+  gtk_css_provider_load_from_file(provider, g_file_new_for_path(myCssFile), &error);
+  g_object_unref (provider);
+}
+
+void update_board(GUI_DATA * data){
+  for(int y = 0; y < 8; y++){
+    for(int x = 0; x < 8; x++){
+      char * label = calloc(1,1);
+      label[0] = (piece_symbol(data->game->board[y][x]));
+      gtk_button_set_label(GTK_BUTTON(data->grid[y][x]), label);
+    }
+  }
+}
+
+void print_hello (GtkWidget *widget, gpointer data){
+  POSITION * p = data;
+  POSITION * selected = p->gui_data->selected_piece;
+  GAME * game = p->gui_data->game;
+  g_print ("Hello World (%d, %d) \n", p->x, p->y);//, data->y);
+  if(selected){
+    g_print("%d %d %d %d\n", selected->x, selected->y, p->x, p->y);
+    if(attempt_piece_move(game, game->board[selected->y][selected->x], p->x, p->y))
+      game->turn = !(game->turn);
+    p->gui_data->selected_piece = NULL;
+  }else{
+    p->gui_data->selected_piece = data;
+  }
+  update_board(p->gui_data);
 
 }
 
-static void activate (GtkApplication *app, gpointer user_data){
+void activate (GtkApplication *app, gpointer gdata){
+  GUI_DATA * gui_data = gdata;
   GtkWidget *window;
   GtkWidget *grid;
   GtkWidget *button;
-
-  /* create a new window, and set its title */
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "CHESS");
   gtk_container_set_border_width (GTK_CONTAINER (window), 10);
   gtk_window_set_default_size (GTK_WINDOW (window), 400, 400);
-  /* Here we construct the container that is going pack our buttons */
+  myCSS();
   grid = gtk_grid_new ();
-  
-  /* Pack the container in the window */
-  gtk_container_add (GTK_CONTAINER (window), grid);
+  gtk_container_add(GTK_CONTAINER (window), grid);
+  //gui_data->grid = grid;
   for(int y = 0; y < 8; y++){
     for(int x = 0; x < 8; x++){
-        button = gtk_button_new_with_label (" ");
-	gtk_widget_set_size_request(button, 50, 50);
-	g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
-	gtk_grid_attach (GTK_GRID (grid), button, x, y, 1, 1);
+
+      button = gtk_button_new_with_label(" ");
+      gtk_widget_set_name(button, (((x + 1) % 2 && (y + 1) % 2) || (x % 2 && y % 2)) ? "black_square" : "white_square");
+      gtk_widget_set_size_request(button, 50, 50);
+      POSITION * p = (POSITION*)malloc(sizeof(POSITION));
+      p->x = x;
+      p->y = y;
+      p->gui_data = gui_data;
+      g_signal_connect (button, "clicked", G_CALLBACK (print_hello), p);
+      gui_data->grid[y][x] = button;
+      gtk_grid_attach (GTK_GRID (grid), button, x, 7 - y, 1, 1);
     }
   }
-
-
-  /* Place the first button in the grid cell (0, 0), and make it fill
-   * just 1 cell horizontally and vertically (ie no spanning)
-   */
-  /* gtk_grid_attach (GTK_GRID (grid), button, 0, 0, 1, 1); */
-
-  /* button = gtk_button_new_with_label ("Button 2"); */
-  /* g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL); */
-
-  /* /\* Place the second button in the grid cell (1, 0), and make it fill */
-  /*  * just 1 cell horizontally and vertically (ie no spanning) */
-  /*  *\/ */
-  /* gtk_grid_attach (GTK_GRID (grid), button, 1, 0, 1, 1); */
-
-  /* button = gtk_button_new_with_label ("Quit"); */
-  /* g_signal_connect_swapped (button, "clicked", G_CALLBACK (gtk_widget_destroy), window); */
-
-  /* /\* Place the Quit button in the grid cell (0, 1), and make it */
-  /*  * span 2 columns. */
-  /*  *\/ */
-  /* gtk_grid_attach (GTK_GRID (grid), button, 0, 1, 2, 1); */
-
-  /* Now that we are done packing our widgets, we show them all
-   * in one go, by calling gtk_widget_show_all() on the window.
-   * This call recursively calls gtk_widget_show() on all widgets
-   * that are contained in the window, directly or indirectly.
-   */
+  update_board(gui_data);
   gtk_widget_show_all (window);
-
 }
-
 
 int main (int argc, char **argv){
   GtkApplication *app;
   int status;
+  GUI_DATA * gui_data = malloc(sizeof(GUI_DATA));
+  gui_data->game = generate_game();
+  gui_data->selected_piece = NULL;
 
   app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
-  g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+  g_signal_connect (app, "activate", G_CALLBACK (activate), gui_data);
   status = g_application_run (G_APPLICATION (app), argc, argv);
   g_object_unref (app);
 

@@ -1,3 +1,4 @@
+
 all: game.o rules.o rule_tests.o select sserver
 	gcc -o game game.o rules.o rule_tests.o
 game.o: game.c chess_base.h
@@ -24,7 +25,7 @@ select_server.o: select_server.c networking.h
 networking.o: networking.c networking.h
 	gcc -c networking.c
 gui:
-	gcc `pkg-config --cflags gtk+-3.0` -o gui gui.c `pkg-config --libs gtk+-3.0`
+	gcc `pkg-config --cflags gtk+-3.0` -o gui_game gui.c game.c rules.c `pkg-config --libs gtk+-3.0`
 
 run:
 	./game
