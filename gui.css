@@ -1,6 +1,22 @@
-#white_square { background-image: none; background-color: wheat; }
-#black_square { background-image: none; background-color: green; }
-#possible_move { background-image: none; background-color: yellow; }
+.square {
+    background-image: none;
+    font-size: 30px;
+    padding: 0px;
+}
+.white_square {
+    background-color: wheat;
+}
+.black_square {
+    background-color: green;
+}
 
-
-
+.possible_move {
+    background-color: yellow;
+}
+.white_piece {
+    color:white;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+.selected {
+    font-size: 36px;
+}

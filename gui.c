@@ -29,35 +29,62 @@ void myCSS(void){
   g_object_unref (provider);
 }
 
+char * piece_symbol_unicode(PIECE * piece){
+  if(!piece)
+    return " ";
+  switch(piece->type){
+  case Pawn:
+    return "♟";
+  case Knight:
+    return "♞";
+  case Bishop:
+    return "♝";
+  case Rook:
+    return "♜";
+  case Queen:
+    return "♛";
+  case King:
+    return "♚";
+  }
+}
 void update_board(GUI_DATA * data){
   for(int y = 0; y < 8; y++){
     for(int x = 0; x < 8; x++){
+      PIECE * piece = data->game->board[y][x];
       char * label = calloc(1,1);
-      label[0] = (piece_symbol(data->game->board[y][x]));
+      label = piece_symbol_unicode(data->game->board[y][x]);
       gtk_button_set_label(GTK_BUTTON(data->grid[y][x]), label);
-      gtk_widget_set_name(data->grid[y][x], (((x + 1) % 2 && (y + 1) % 2) || (x % 2 && y % 2)) ? "black_square" : "white_square");
-      if(data->selected_piece && is_valid_move(data->game, data->game->board[data->selected_piece->y][data->selected_piece->x], x, y))
-	gtk_widget_set_name(data->grid[y][x], "possible_move");
+      GtkStyleContext *context = gtk_widget_get_style_context(data->grid[y][x]);
+      gtk_style_context_remove_class(context,"selected");
+      gtk_style_context_remove_class(context,"possible_move");
+      gtk_style_context_remove_class(context,"white_piece");
+      gtk_style_context_add_class(context,"square");
 
+      if(piece && piece->side == White)
+	gtk_style_context_add_class(context,"white_piece");
+      if(data->selected_piece && data->selected_piece->x == x && data->selected_piece->y == y)
+	gtk_style_context_add_class(context,"selected");
+      gtk_style_context_add_class(context, (((x + 1) % 2 && (y + 1) % 2) || (x % 2 && y % 2)) ? "black_square" : "white_square");
+      if(data->selected_piece && is_valid_move(data->game, data->game->board[data->selected_piece->y][data->selected_piece->x], x, y)){
+	gtk_style_context_add_class(context,"possible_move");
+      }
     }
   }
 }
 
-void print_hello (GtkWidget *widget, gpointer data){
+void button_press (GtkWidget *widget, gpointer data){
   POSITION * p = data;
   POSITION * selected = p->gui_data->selected_piece;
   GAME * game = p->gui_data->game;
-  g_print ("Hello World (%d, %d) \n", p->x, p->y);//, data->y);
   if(selected){
-    g_print("%d %d %d %d\n", selected->x, selected->y, p->x, p->y);
     if(attempt_piece_move(game, game->board[selected->y][selected->x], p->x, p->y))
       game->turn = !(game->turn);
     p->gui_data->selected_piece = NULL;
   }else{
-    p->gui_data->selected_piece = data;
+    if(p->gui_data->game->board[p->y][p->x])
+      p->gui_data->selected_piece = data;
   }
   update_board(p->gui_data);
-
 }
 
 void activate (GtkApplication *app, gpointer gdata){
@@ -80,7 +107,7 @@ void activate (GtkApplication *app, gpointer gdata){
       p->x = x;
       p->y = y;
       p->gui_data = gui_data;
-      g_signal_connect (button, "clicked", G_CALLBACK (print_hello), p);
+      g_signal_connect (button, "clicked", G_CALLBACK (button_press), p);
       gui_data->grid[y][x] = button;
       gtk_grid_attach (GTK_GRID (grid), button, x, 7 - y, 1, 1);
     }
