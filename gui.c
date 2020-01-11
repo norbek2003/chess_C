@@ -35,6 +35,10 @@ void update_board(GUI_DATA * data){
       char * label = calloc(1,1);
       label[0] = (piece_symbol(data->game->board[y][x]));
       gtk_button_set_label(GTK_BUTTON(data->grid[y][x]), label);
+      gtk_widget_set_name(data->grid[y][x], (((x + 1) % 2 && (y + 1) % 2) || (x % 2 && y % 2)) ? "black_square" : "white_square");
+      if(data->selected_piece && is_valid_move(data->game, data->game->board[data->selected_piece->y][data->selected_piece->x], x, y))
+	gtk_widget_set_name(data->grid[y][x], "possible_move");
+
     }
   }
 }
@@ -68,12 +72,9 @@ void activate (GtkApplication *app, gpointer gdata){
   myCSS();
   grid = gtk_grid_new ();
   gtk_container_add(GTK_CONTAINER (window), grid);
-  //gui_data->grid = grid;
   for(int y = 0; y < 8; y++){
     for(int x = 0; x < 8; x++){
-
       button = gtk_button_new_with_label(" ");
-      gtk_widget_set_name(button, (((x + 1) % 2 && (y + 1) % 2) || (x % 2 && y % 2)) ? "black_square" : "white_square");
       gtk_widget_set_size_request(button, 50, 50);
       POSITION * p = (POSITION*)malloc(sizeof(POSITION));
       p->x = x;
