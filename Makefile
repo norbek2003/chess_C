@@ -23,7 +23,8 @@ select_server.o: select_server.c networking.h
 
 networking.o: networking.c networking.h
 	gcc -c networking.c
-
+gui:
+	gcc `pkg-config --cflags gtk+-3.0` -o gui gui.c `pkg-config --libs gtk+-3.0`
 
 run:
 	./game
