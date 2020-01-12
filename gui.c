@@ -115,6 +115,20 @@ void button_press (GtkWidget *widget, gpointer data){
   }
   update_board(p->gui_data);
 }
+void addEdge(GUI_DATA * data, GtkWidget * grid, int x, int y){
+  char * label = calloc(1, 1);
+  if(x == y)
+    label[0] = ' ';
+  else if(x == 0 || x == 9)
+    label[0] = " 87654321 "[y];
+  else
+    label[0] = " ABCDEFGH "[x];
+  GtkWidget *button  = gtk_button_new_with_label(label);
+  gtk_widget_set_size_request(button, 50, 50);
+  gtk_grid_attach (GTK_GRID (grid), button, x, y, 1, 1);
+  gtk_style_context_add_class(gtk_widget_get_style_context(button), "edge");
+
+}
 void activate (GtkApplication *app, gpointer gdata){
   GUI_DATA * gui_data = gdata;
   GtkWidget *window;
@@ -125,7 +139,7 @@ void activate (GtkApplication *app, gpointer gdata){
   window = gtk_application_window_new (app);
   gui_data->window = window;  
   gtk_container_set_border_width (GTK_CONTAINER (window), 10);
-  gtk_window_set_default_size (GTK_WINDOW (window), 400, 400);
+  gtk_window_set_default_size (GTK_WINDOW (window), 500, 500);
   myCSS();
   grid = gtk_grid_new ();
   gtk_container_add(GTK_CONTAINER (window), grid);
@@ -139,8 +153,15 @@ void activate (GtkApplication *app, gpointer gdata){
       p->gui_data = gui_data;
       g_signal_connect (button, "clicked", G_CALLBACK (button_press), p);
       gui_data->grid[y][x] = button;
-      gtk_grid_attach (GTK_GRID (grid), button, x, 7 - y, 1, 1);
+      gtk_grid_attach (GTK_GRID (grid), button, x + 1, 8 - y, 1, 1);
     }
+  }
+
+  for(int i = 0; i < 10; i += 1){
+    addEdge(gui_data, grid, i, 0);
+    addEdge(gui_data, grid, i, 9);
+    addEdge(gui_data, grid, 0, i);
+    addEdge(gui_data, grid, 9, i);
   }
   update_board(gui_data);
   gtk_widget_show_all (window);
