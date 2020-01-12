@@ -28,7 +28,7 @@ void get_move_from_stdin(int * move){
     printf("Please input move->");
     char *buffer = NULL;
     int read;
-    unsigned int len;
+    size_t len;
     read = getline(&buffer, &len, stdin);
     move[0] = toupper(buffer[0]) - 65;
     move[1] = toupper(buffer[1]) - 49;
@@ -122,14 +122,12 @@ void play_game(){
   while(1){
     printf("%s TO MOVE\n", game->turn ? "BLACK" : "WHITE");
     get_move_from_stdin(move);
-    //If ? move[0] = -2
     if(attempt_piece_move(game, game->board[move[1]][move[0]], move[2], move[3])){
       game->turn = !game->turn;
       print_board(game);
     }
-
     memset(move, -1, 4);
-    if(in_draw(game)){
+    if(in_draw(game, game->turn)){
       if(in_check(game, game->turn)){
 	printf("%s WINS!\n", game->turn ? "WHITE" : "BLACK");
 	return;
@@ -137,6 +135,5 @@ void play_game(){
       printf("DRAW. \n");
       return;
     }
-    //sleep(1);
   }
 }
