@@ -1,17 +1,5 @@
 #include <gtk/gtk.h>
-#include "chess_base.h"
-struct gui_data;
-typedef struct{
-  int x;
-  int y;
-  struct gui_data * gui_data;
-} POSITION;
-typedef struct gui_data{
-  GAME * game;
-  POSITION * selected_piece;
-  GtkWidget * grid[8][8];
-} GUI_DATA;
-
+#include "gui.h"
 void myCSS(void){
   GtkCssProvider *provider;
   GdkDisplay *display;
@@ -28,7 +16,6 @@ void myCSS(void){
   gtk_css_provider_load_from_file(provider, g_file_new_for_path(myCssFile), &error);
   g_object_unref (provider);
 }
-
 char * piece_symbol_unicode(PIECE * piece){
   if(!piece)
     return " ";
@@ -47,7 +34,22 @@ char * piece_symbol_unicode(PIECE * piece){
     return "♚";
   }
 }
+int game_ended_check(GUI_DATA * data, SIDE side){
+  if(in_draw(data->game, side)){
+    if(in_check(data->game, side)){
+      gtk_window_set_title (GTK_WINDOW (data->window), side ? "CHESS! - Black Wins!" : "CHESS! - White Wins!");
+    }else{
+      gtk_window_set_title (GTK_WINDOW (data->window), "CHESS! - STALEMATE.");
+    }
+    g_source_remove(data->listener);
+    return 1;
+   }
+  return 0;
+}
 void update_board(GUI_DATA * data){
+  gtk_window_set_title (GTK_WINDOW (data->window), data->game->turn ? "CHESS! - Black To Move" : "CHESS! - White to Move");
+  game_ended_check(data, 0);
+  game_ended_check(data, 1);
   for(int y = 0; y < 8; y++){
     for(int x = 0; x < 8; x++){
       PIECE * piece = data->game->board[y][x];
@@ -59,41 +61,69 @@ void update_board(GUI_DATA * data){
       gtk_style_context_remove_class(context,"possible_move");
       gtk_style_context_remove_class(context,"white_piece");
       gtk_style_context_add_class(context,"square");
-
+      gtk_style_context_add_class(context, (((x + 1) % 2 && (y + 1) % 2) || (x % 2 && y % 2)) ? "black_square" : "white_square");
       if(piece && piece->side == White)
 	gtk_style_context_add_class(context,"white_piece");
       if(data->selected_piece && data->selected_piece->x == x && data->selected_piece->y == y)
 	gtk_style_context_add_class(context,"selected");
-      gtk_style_context_add_class(context, (((x + 1) % 2 && (y + 1) % 2) || (x % 2 && y % 2)) ? "black_square" : "white_square");
-      if(data->selected_piece && is_valid_move(data->game, data->game->board[data->selected_piece->y][data->selected_piece->x], x, y)){
+      if(data->selected_piece && is_valid_move(data->game, data->game->board[data->selected_piece->y][data->selected_piece->x], x, y))
 	gtk_style_context_add_class(context,"possible_move");
-      }
     }
   }
 }
-
+gboolean listen_for_move(GUI_DATA * data){
+  printf("%d listening %d\n", data->side, data->game->turn);
+  char buffer[BUFFER_SIZE];
+  if(data->game->turn != data->side && read(data->server_socket, buffer, sizeof(buffer))){
+    printf("Recieving %s\n", buffer);
+    buffer[0] -= 65;
+    buffer[1] -= 49;
+    buffer[2] -= 65;
+    buffer[3] -= 49;
+    if(attempt_piece_move(data->game, data->game->board[buffer[1]][buffer[0]], buffer[2], buffer[3])){
+      data->game->turn = !(data->game->turn);
+      print_board(data->game);
+      update_board(data);
+    }
+  }
+  return TRUE;
+}
 void button_press (GtkWidget *widget, gpointer data){
   POSITION * p = data;
   POSITION * selected = p->gui_data->selected_piece;
   GAME * game = p->gui_data->game;
   if(selected){
-    if(attempt_piece_move(game, game->board[selected->y][selected->x], p->x, p->y))
+    if(attempt_piece_move(game, game->board[selected->y][selected->x], p->x, p->y)){
+      p->gui_data->selected_piece = NULL;
+      update_board(p->gui_data);
+      int move[] = {selected->x, selected->y, p->x, p->y, 0};
+      char buffer[5];
+      move[0] += 65;
+      move[1] += 49;
+      move[2] += 65;
+      move[3] += 49;
+      for(int i = 0; i < 4; i++) buffer[i] = move[i];
+      update_board(p->gui_data);
+      write(p->gui_data->server_socket, buffer, sizeof(buffer));
+      printf("Sending %s\n", buffer);
       game->turn = !(game->turn);
+    }
     p->gui_data->selected_piece = NULL;
   }else{
-    if(p->gui_data->game->board[p->y][p->x])
+    if(game->turn == p->gui_data->side && game->board[p->y][p->x] && game->board[p->y][p->x]->side == p->gui_data->side)
       p->gui_data->selected_piece = data;
   }
   update_board(p->gui_data);
 }
-
 void activate (GtkApplication *app, gpointer gdata){
   GUI_DATA * gui_data = gdata;
   GtkWidget *window;
   GtkWidget *grid;
   GtkWidget *button;
+  
+  gui_data->listener = g_timeout_add(1000, (GSourceFunc) listen_for_move, (gpointer) gui_data);
   window = gtk_application_window_new (app);
-  gtk_window_set_title (GTK_WINDOW (window), "CHESS");
+  gui_data->window = window;  
   gtk_container_set_border_width (GTK_CONTAINER (window), 10);
   gtk_window_set_default_size (GTK_WINDOW (window), 400, 400);
   myCSS();
@@ -116,17 +146,3 @@ void activate (GtkApplication *app, gpointer gdata){
   gtk_widget_show_all (window);
 }
 
-int main (int argc, char **argv){
-  GtkApplication *app;
-  int status;
-  GUI_DATA * gui_data = malloc(sizeof(GUI_DATA));
-  gui_data->game = generate_game();
-  gui_data->selected_piece = NULL;
-
-  app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
-  g_signal_connect (app, "activate", G_CALLBACK (activate), gui_data);
-  status = g_application_run (G_APPLICATION (app), argc, argv);
-  g_object_unref (app);
-
-  return status;
-}

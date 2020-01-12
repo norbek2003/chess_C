@@ -11,22 +11,20 @@ rules_tests.o: rule_tests.c chess_base.h
 select: sclient sserver
 
 sserver: select_server.o networking.o rules.o game.o
-	gcc -o server select_server.o networking.o rules.o game.o
+	gcc `pkg-config --cflags gtk+-3.0` -o server gui.o select_server.o networking.o game.o rules.o  `pkg-config --libs gtk+-3.0`
 
-sclient: select_client.o networking.o rules.o game.o
-	gcc -o client select_client.o networking.o game.o rules.o
+
+sclient: select_client.o networking.o rules.o game.o gui.o
+	gcc `pkg-config --cflags gtk+-3.0` -o client gui.o select_client.o networking.o game.o rules.o  `pkg-config --libs gtk+-3.0`
 
 select_client.o: select_client.c networking.h
-	gcc -c select_client.c
-
+	gcc `pkg-config --cflags gtk+-3.0` -c select_client.c `pkg-config --libs gtk+-3.0`
 select_server.o: select_server.c networking.h
-	gcc -c select_server.c
-
+	gcc `pkg-config --cflags gtk+-3.0` -c select_server.c `pkg-config --libs gtk+-3.0`
+gui.o: gui.c gui.h chess_base.h
+	gcc `pkg-config --cflags gtk+-3.0` -c gui.c `pkg-config --libs gtk+-3.0`
 networking.o: networking.c networking.h
 	gcc -c networking.c
-gui:
-	gcc `pkg-config --cflags gtk+-3.0` -o gui_game gui.c game.c rules.c `pkg-config --libs gtk+-3.0`
-
 run:
 	./game
 clean:

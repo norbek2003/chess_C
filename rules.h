@@ -1,7 +1,7 @@
 int is_location_attacked(GAME * game, SIDE by_side, int x, int y);
 
 int in_check(GAME * game, SIDE side);
-int in_draw(GAME * game);
+int in_draw(GAME * game, SIDE side);
 
 int is_blocked_py_piece(GAME * game, PIECE * piece, int x, int y, int x_dir, int y_dir);
 

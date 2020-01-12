@@ -14,9 +14,9 @@ int in_check(GAME * game, SIDE side){
   PIECE * king = game->sides[side]->king;
   return is_location_attacked(game, !side, king->x, king->y);
 }
-int in_draw(GAME * game){
+int in_draw(GAME * game, SIDE side){
   for(int i = 0; i < 16; i++){
-    PIECE * p = game->sides[game->turn]->pieces[i];
+    PIECE * p = game->sides[side]->pieces[i];
     for(int y = 0; y < 8; y++){
       for(int x = 0; x < 8; x++){
 	if(is_valid_move(game, p, x, y)){
