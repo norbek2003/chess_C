@@ -120,7 +120,7 @@ void addEdge(GUI_DATA * data, GtkWidget * grid, int x, int y){
   if(x == y)
     label[0] = ' ';
   else if(x == 0 || x == 9)
-    label[0] = " 87654321 "[y];
+    label[0] = (data->side ? " 12345678 " : " 87654321 ")[y];
   else
     label[0] = " ABCDEFGH "[x];
   GtkWidget *button  = gtk_button_new_with_label(label);
@@ -134,7 +134,6 @@ void activate (GtkApplication *app, gpointer gdata){
   GtkWidget *window;
   GtkWidget *grid;
   GtkWidget *button;
-  
   gui_data->listener = g_timeout_add(1000, (GSourceFunc) listen_for_move, (gpointer) gui_data);
   window = gtk_application_window_new (app);
   gui_data->window = window;  
@@ -153,7 +152,7 @@ void activate (GtkApplication *app, gpointer gdata){
       p->gui_data = gui_data;
       g_signal_connect (button, "clicked", G_CALLBACK (button_press), p);
       gui_data->grid[y][x] = button;
-      gtk_grid_attach (GTK_GRID (grid), button, x + 1, 8 - y, 1, 1);
+      gtk_grid_attach (GTK_GRID (grid), button, x + 1,  gui_data->side ? y + 1 : 8 - y;, 1, 1);
     }
   }
 
