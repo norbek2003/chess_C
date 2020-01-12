@@ -24,7 +24,7 @@
 ### Just Spitballing Here, Don't Quote Me On It ...
 - [x] Jan  6,2020 Basic structs and relationships between them created
 - [x] Jan 10, 2020 Game rules and move eligibility checking set up
-- [ ] Jan 14, 2020 Hopefully I'll figure out how networks work by then
-- [ ] Jan 16, 2020 All ~~bugs~~ surprise features should have been ~~fixed~~ postponed for a later release.
-- [ ] Jan 17, 2020, (Pre-8AM) maybe I'll have time to try and add graphics
+- [x] Jan 14, 2020 Hopefully I'll figure out how networks work by then
+- [x] Jan 16, 2020 All ~~bugs~~ surprise features should have been ~~fixed~~ postponed for a later release.
+- [x] Jan 17, 2020, (Pre-8AM) maybe I'll have time to try and add graphics
 - [ ] Jan 17, 2020, (Seconds to spare until 8AM) Submitted!
