@@ -107,14 +107,14 @@ void king_test(){
   GAME * game = generate_game();
   for(int i = 0; i < 32; i ++){
     PIECE * p = game->pieces[i];
-    if(p->type != Rook && p->type != King && !(p->x == 4 && p->type == Pawn)){
+    if(p->type != Rook && p->type != King && !(p->x == 4 && p->y == 6)){
       game->board[p->y][p->x] = 0;
       game->pieces[i] = 0;
     }
   }
-  move_piece(game, game->board[1][4], 4, 3);
+  //move_piece(game, game->board[1][4], 4, 3);
   move_piece(game, game->board[6][4], 3, 4);
-  game->board[3][4]->type = game->board[4][3]->type = Rook;
+  game->board[4][3]->type = Rook;
   print_possible_positions(game);
 }
 void setup_test(){

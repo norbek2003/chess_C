@@ -152,7 +152,7 @@ void activate (GtkApplication *app, gpointer gdata){
       p->gui_data = gui_data;
       g_signal_connect (button, "clicked", G_CALLBACK (button_press), p);
       gui_data->grid[y][x] = button;
-      gtk_grid_attach (GTK_GRID (grid), button, x + 1,  gui_data->side ? y + 1 : 8 - y;, 1, 1);
+      gtk_grid_attach (GTK_GRID (grid), button, x + 1,  gui_data->side ? y + 1 : 8 - y, 1, 1);
     }
   }
 

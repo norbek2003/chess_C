@@ -3,9 +3,8 @@
 int is_location_attacked(GAME * game, SIDE by_side, int x, int y){
   for(int i = 0; i < 16; i++){
     PIECE * p = game->sides[by_side]->pieces[i];
-    if(p && !p->captured && is_valid_move_for_piece(game, p, x, y)){
+    if(p && !p->captured && is_valid_move_for_piece(game, p, x, y))
       return 1;
-    }
   }
   return 0;
 }
@@ -85,7 +84,8 @@ int is_valid_castle(GAME * game, PIECE * king, int x, int y){
   int x_dir = (- (king->x - x) / abs(king->x - x));
   if(is_blocked_py_piece(game, king, x, y, x_dir, 0))
     return 0;
-  if(is_location_attacked(game, king->side ? Black : White, x + x_dir, y) || is_location_attacked(game, king->side ? Black : White, x + (x_dir * 2), y))
+
+  if(is_location_attacked(game, !(king->side), king->x + x_dir, y) || is_location_attacked(game, !(king->side), king->x + (x_dir * 2), y))
     return 0;
   return rook->x + 2;
 }
