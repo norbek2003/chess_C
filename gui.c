@@ -72,19 +72,22 @@ void update_board(GUI_DATA * data){
   }
 }
 gboolean listen_for_move(GUI_DATA * data){
-  printf("%d listening %d\n", data->side, data->game->turn);
+  //printf("%d listening %d\n", data->side, data->game->turn);
   char buffer[BUFFER_SIZE];
   if(data->game->turn != data->side && read(data->server_socket, buffer, sizeof(buffer))){
-    printf("Recieving %s\n", buffer);
+    //printf("Recieving %s\n", buffer);
     buffer[0] -= 65;
     buffer[1] -= 49;
     buffer[2] -= 65;
     buffer[3] -= 49;
     if(attempt_piece_move(data->game, data->game->board[buffer[1]][buffer[0]], buffer[2], buffer[3])){
       data->game->turn = !(data->game->turn);
-      print_board(data->game);
       update_board(data);
     }
+  }else{
+    //Filler move to stop the app from freezing on either side
+    char b[5] = {65, 49, 65, 49, 0};
+    write(data->server_socket, b, sizeof(b));
   }
   return TRUE;
 }
@@ -105,7 +108,7 @@ void button_press (GtkWidget *widget, gpointer data){
       for(int i = 0; i < 4; i++) buffer[i] = move[i];
       update_board(p->gui_data);
       write(p->gui_data->server_socket, buffer, sizeof(buffer));
-      printf("Sending %s\n", buffer);
+      //printf("Sending %s\n", buffer);
       game->turn = !(game->turn);
     }
     p->gui_data->selected_piece = NULL;
