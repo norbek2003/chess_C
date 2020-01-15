@@ -28,3 +28,14 @@
     color: white;
     background-image: none;
 }
+.what_white_captured{
+    background-color:white;
+    font-size: 16px;
+}
+
+.what_black_captured{
+    background-color: black;
+    color:white;
+    font-size: 16px;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}

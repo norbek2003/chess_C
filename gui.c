@@ -50,6 +50,14 @@ void update_board(GUI_DATA * data){
   gtk_window_set_title (GTK_WINDOW (data->window), data->game->turn ? "CHESS! - Black To Move" : "CHESS! - White to Move");
   game_ended_check(data, 0);
   game_ended_check(data, 1);
+  char * captured[2] = {calloc(40, 1), calloc(40, 1)};
+  for(int i = 0; i < 32; i++){
+    PIECE * p = data->game->pieces[i];
+    if(p->captured)
+      strcat(captured[!p->side], piece_symbol_unicode(p));
+  }
+  for(int i = 0; i < 2; i++)
+    gtk_button_set_label(GTK_BUTTON(data->captured_piece_displays[i]), captured[i]);
   for(int y = 0; y < 8; y++){
     for(int x = 0; x < 8; x++){
       PIECE * piece = data->game->board[y][x];
@@ -133,18 +141,18 @@ void addEdge(GUI_DATA * data, GtkWidget * grid, int x, int y){
 
 }
 void add_captured_piece_displays(GUI_DATA * data, GtkWidget * grid){
-  GtkWidget *button1  = gtk_button_new_with_label("");
-  gtk_widget_set_size_request(button1, 50, 50);
-  gtk_grid_attach (GTK_GRID (grid), button1, 0, 0, 5, 1);
-  gtk_style_context_add_class(gtk_widget_get_style_context(button1), "captured_piece_display");
-  
-  GtkWidget *button2  = gtk_button_new_with_label("");
-  gtk_widget_set_size_request(button2, 50, 50);
-  gtk_grid_attach (GTK_GRID (grid), button2, 5, 0, 5, 1);
-  gtk_style_context_add_class(gtk_widget_get_style_context(button2), "captured_piece_display");
-  gtk_style_context_add_class(gtk_widget_get_style_context(button2), "what_black_captured");
-
-
+  GtkWidget *button  = gtk_button_new_with_label("");
+  gtk_widget_set_size_request(button, 50, 50);
+  gtk_grid_attach (GTK_GRID (grid), button, 0, 0, 5, 1);
+  gtk_style_context_add_class(gtk_widget_get_style_context(button), "square");
+  gtk_style_context_add_class(gtk_widget_get_style_context(button), "what_white_captured");
+  data->captured_piece_displays[0] = button;
+  button  = gtk_button_new_with_label("");
+  gtk_widget_set_size_request(button, 50, 50);
+  gtk_grid_attach (GTK_GRID (grid), button, 5, 0, 5, 1);
+  gtk_style_context_add_class(gtk_widget_get_style_context(button), "square");
+  gtk_style_context_add_class(gtk_widget_get_style_context(button), "what_black_captured");
+  data->captured_piece_displays[1] = button;
 }
 void activate (GtkApplication *app, gpointer gdata){
   GUI_DATA * gui_data = gdata;
