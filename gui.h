@@ -15,6 +15,7 @@ typedef struct gui_data{
   SIDE side;
   int server_socket;
   int listener;
+  GtkWidget * captured_piece_displays[2];
 } GUI_DATA;
 
 
