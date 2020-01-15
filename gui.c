@@ -50,7 +50,7 @@ void update_board(GUI_DATA * data){
   gtk_window_set_title (GTK_WINDOW (data->window), data->game->turn ? "CHESS! - Black To Move" : "CHESS! - White to Move");
   game_ended_check(data, 0);
   game_ended_check(data, 1);
-  char * captured[2] = {calloc(40, 1), calloc(40, 1)};
+  char * captured[2] = {calloc(64, 1), calloc(64, 1)};
   for(int i = 0; i < 32; i++){
     PIECE * p = data->game->pieces[i];
     if(p->captured)

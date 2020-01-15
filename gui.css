@@ -31,9 +31,11 @@
 .what_white_captured{
     background-color:white;
     font-size: 16px;
+    padding: 0px;
 }
 
 .what_black_captured{
+    padding: 0px;
     background-color: black;
     color:white;
     font-size: 16px;
