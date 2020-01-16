@@ -21,7 +21,7 @@ void subserver(int client_socket) {
   GUI_DATA * gui_data = malloc(sizeof(GUI_DATA));
   gui_data->game = generate_game();
   gui_data->selected_piece = NULL;
-  gui_data->side = Black;
+  gui_data->side = White;
   gui_data->server_socket = client_socket;
 
   app = gtk_application_new ("org.gtk.example2", G_APPLICATION_FLAGS_NONE);

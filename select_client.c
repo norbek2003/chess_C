@@ -7,7 +7,7 @@ int main(int argc, char ** argv){
   GUI_DATA * gui_data = malloc(sizeof(GUI_DATA));
   gui_data->game = generate_game();
   gui_data->selected_piece = NULL;
-  gui_data->side = White;
+  gui_data->side = Black;
   int server_socket;
   if (argc == 2)
     server_socket = client_setup( argv[1]);
@@ -17,6 +17,6 @@ int main(int argc, char ** argv){
   gui_data->server_socket = server_socket;
   app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
   g_signal_connect (app, "activate", G_CALLBACK (activate), gui_data);
-  int status = g_application_run (G_APPLICATION (app), argc, argv);
+  int status = g_application_run (G_APPLICATION (app), 0, NULL);
   g_object_unref (app);
 }
