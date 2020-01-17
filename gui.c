@@ -154,6 +154,26 @@ void add_captured_piece_displays(GUI_DATA * data, GtkWidget * grid){
   gtk_style_context_add_class(gtk_widget_get_style_context(button), "what_black_captured");
   data->captured_piece_displays[1] = button;
 }
+void save_to_file(){
+}
+void open_save_dialog(){
+  GtkWidget *dialog;
+  dialog = gtk_file_chooser_dialog_new ("Save File",
+					NULL,
+					GTK_FILE_CHOOSER_ACTION_SAVE,
+					GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+					NULL);
+  gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
+  gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), "game.chess");
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT){
+    char *filename;
+    filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    save_to_file (filename);
+    g_free (filename);
+  }
+  gtk_widget_destroy (dialog);
+}
 void activate (GtkApplication *app, gpointer gdata){
   GUI_DATA * gui_data = gdata;
   GtkWidget *window;
@@ -168,6 +188,7 @@ void activate (GtkApplication *app, gpointer gdata){
   grid = gtk_grid_new ();
   gtk_container_add(GTK_CONTAINER (window), grid);
   add_captured_piece_displays(gui_data, grid);
+  //Generate game board
   for(int y = 0; y < 8; y++){
     for(int x = 0; x < 8; x++){
       button = gtk_button_new_with_label(" ");
@@ -181,7 +202,7 @@ void activate (GtkApplication *app, gpointer gdata){
       gtk_grid_attach (GTK_GRID (grid), button, x + 1,  gui_data->side ? y + 2 : 9 - y, 1, 1);
     }
   }
-
+  //Generate borders
   for(int i = 0; i < 10; i += 1){
     addEdge(gui_data, grid, i, 1);
     addEdge(gui_data, grid, i, 10);
