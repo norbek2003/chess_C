@@ -183,7 +183,7 @@ void activate (GtkApplication *app, gpointer gdata){
   window = gtk_application_window_new (app);
   gui_data->window = window;  
   gtk_container_set_border_width (GTK_CONTAINER (window), 10);
-  gtk_window_set_default_size (GTK_WINDOW (window), 500, 500);
+  gtk_window_set_default_size (GTK_WINDOW (window), 700, 500);
   myCSS();
   grid = gtk_grid_new ();
   gtk_container_add(GTK_CONTAINER (window), grid);
@@ -209,6 +209,22 @@ void activate (GtkApplication *app, gpointer gdata){
     addEdge(gui_data, grid, 0, i + 1);
     addEdge(gui_data, grid, 9, i + 1);
   }
+  //Move History
+  //GtkWidget* textArea = gtk_text_view_new();
+  GtkWidget* scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+  GtkWidget* textArea = gtk_label_new("Hello\n world");
+  gtk_widget_set_size_request(textArea, 50, 50);
+  gtk_widget_set_size_request(scrolledwindow, 150, 50);
+  gtk_container_add(GTK_CONTAINER(scrolledwindow), textArea);
+
+  gtk_label_set_xalign (textArea, 0.0);
+  gtk_label_set_yalign (textArea, 0.0);
+
+  //gtk_widget_set_size_request(scrolledwindow, 50, 50);
+  
+  gtk_grid_attach(GTK_GRID(grid), scrolledwindow, 12, 0, 500, 500);
+  GtkStyleContext *context = gtk_widget_get_style_context(scrolledwindow);
+  gtk_style_context_add_class(context, "move_history");
   update_board(gui_data);
   gtk_widget_show_all (window);
 }
