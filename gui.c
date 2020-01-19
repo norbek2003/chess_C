@@ -48,6 +48,20 @@ int game_ended_check(GUI_DATA * data, SIDE side){
 }
 void update_board(GUI_DATA * data){
   gtk_window_set_title (GTK_WINDOW (data->window), data->game->turn ? "CHESS! - Black To Move" : "CHESS! - White to Move");
+  // Update Move History
+  MOVE * move =  data->game->moves;
+  data->move_history[0] = 0;
+  strcpy(data->move_history, "MOVE HISTORY\n");
+  if(move->notation){
+    int m = 0;
+    while(move && move->notation){
+      strcat(data->move_history, move->notation);
+      strcat(data->move_history, m % 2 ? "\n" : " ");
+      m++;
+      move = move->next_move;
+    }
+  }
+  gtk_label_set_text(data->move_history_display, data->move_history);
   game_ended_check(data, 0);
   game_ended_check(data, 1);
   char * captured[2] = {calloc(64, 1), calloc(64, 1)};
@@ -78,6 +92,7 @@ void update_board(GUI_DATA * data){
 	gtk_style_context_add_class(context,"possible_move");
     }
   }
+  
 }
 gboolean listen_for_move(GUI_DATA * data){
   //printf("%d listening %d\n", data->side, data->game->turn);
@@ -210,21 +225,24 @@ void activate (GtkApplication *app, gpointer gdata){
     addEdge(gui_data, grid, 9, i + 1);
   }
   //Move History
-  //GtkWidget* textArea = gtk_text_view_new();
+
   GtkWidget* scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
-  GtkWidget* textArea = gtk_label_new("Hello\n world");
-  gtk_widget_set_size_request(textArea, 50, 50);
-  gtk_widget_set_size_request(scrolledwindow, 150, 50);
+  GtkWidget* textArea = gtk_label_new("");
+  gui_data->move_history_display = GTK_LABEL(textArea);
+
+  gtk_widget_set_size_request(textArea, 175, 50);
+  gtk_widget_set_size_request(scrolledwindow, 175, 50);
   gtk_container_add(GTK_CONTAINER(scrolledwindow), textArea);
 
-  gtk_label_set_xalign (textArea, 0.0);
-  gtk_label_set_yalign (textArea, 0.0);
-
-  //gtk_widget_set_size_request(scrolledwindow, 50, 50);
+  gtk_label_set_xalign (GTK_LABEL(textArea), 0.0);
+  gtk_label_set_yalign (GTK_LABEL(textArea), 0.0);
   
-  gtk_grid_attach(GTK_GRID(grid), scrolledwindow, 12, 0, 500, 500);
+  gtk_grid_attach(GTK_GRID(grid), scrolledwindow, 10, 0, 20, 10);
+  GtkWidget* save_button = gtk_button_new_with_label("Save Move History");
+  gtk_grid_attach(GTK_GRID(grid), save_button, 10, 10, 20, 50);
   GtkStyleContext *context = gtk_widget_get_style_context(scrolledwindow);
   gtk_style_context_add_class(context, "move_history");
+
   update_board(gui_data);
   gtk_widget_show_all (window);
 }

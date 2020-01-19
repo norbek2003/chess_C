@@ -45,5 +45,7 @@
     background-image: none;
     background-color: #D2B48C;
     border: 2px solid #c04000;
+    font-size: 16px;
+    font-family: "Courier New";
     padding: 0px;
 }

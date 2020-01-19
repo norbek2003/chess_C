@@ -16,6 +16,8 @@ typedef struct gui_data{
   int server_socket;
   int listener;
   GtkWidget * captured_piece_displays[2];
+  GtkLabel * move_history_display;
+  char move_history[3000];
 } GUI_DATA;
 
 
