@@ -15,6 +15,18 @@ typedef struct piece {
   int captured;
   int has_moved;
 } PIECE;
+
+typedef struct move {
+  int from_x;
+  int from_y;
+  int to_x;
+  int to_y;
+  PIECE * moved_piece;
+  PIECE * captured_piece;
+  struct move * next_move;
+  char notation[8];
+} MOVE;
+
 struct side {
   PIECE * pieces[16];
   PIECE * king;
@@ -25,6 +37,7 @@ typedef struct game{
   PIECE * board[8][8];
   PIECE * pieces[32];
   SIDE turn;
+  MOVE * moves;
 } GAME;
 
 #define RESET "\x1b[0m"

@@ -5,10 +5,49 @@ void move_piece(GAME * game, PIECE * piece, int x, int y){
   piece->x = x;
   piece->y = y;
 }
+MOVE * generate_move(){
+  MOVE * m = malloc(sizeof(MOVE));
+  m->next_move = NULL;
+  m->moved_piece = NULL;;
+  m->captured_piece = NULL;
+  m->notation[0] = 0;
+  return m;
+}
+void add_move(GAME * game, PIECE * piece, PIECE * captured_piece, int orig_x, int orig_y, int x, int y, int move_status){
+  MOVE * move = game->moves;
+  while(move->next_move){
+    move = move->next_move;
+  }
+  move->from_x = orig_x;
+  move->from_y = orig_y;
+  move->to_x = x;
+  move->to_y = y;
+  move->moved_piece = piece;
+  move->captured_piece = captured_piece;
+  move->next_move = generate_move();
+  int p = 0;
+  if(move_status > 1){
+    strcpy(move->notation, move_status == 2 ? "O-O-O  " : "O-O    ");
+  }else{
+    memset(move->notation, ' ', 8);
+    move->notation[p++] = "PBNRQK"[piece->type];
+    move->notation[p++] = "ABCDEFGH"[orig_x];
+    move->notation[p++] = "12345678"[orig_y];
+    if(captured_piece){
+      move->notation[p++] = 'x';
+      move->notation[p++] = "PBNRQK"[captured_piece->type];
+    }
+    move->notation[p++] = "ABCDEFGH"[x];
+    move->notation[p++] = "12345678"[y];
+
+    move->notation[7] = 0;
+  }
+}
 int attempt_piece_move(GAME * game, PIECE * piece, int x, int y){
   if(!piece || piece->side != game->turn)
     return 0;
   int orig_x = piece->x;
+  int orig_y = piece->y;
   int is_valid = is_valid_move(game, piece, x, y);
   if(!is_valid)
     return 0;
@@ -21,6 +60,7 @@ int attempt_piece_move(GAME * game, PIECE * piece, int x, int y){
     int x_dir = (- (orig_x - x) / abs(orig_x - x));
     move_piece(game, game->board[y][is_valid - 2], x - x_dir, y);
   }
+  add_move(game, piece, captured, orig_x, orig_y, x, y, is_valid);
   return is_valid;
 }
 void get_move_from_stdin(int * move){
@@ -107,6 +147,7 @@ GAME * generate_game(){
       game->pieces[side * 16 + i] = piece;
     }
   }
+  game->moves = generate_move();
   game->turn = White;
   return game;
 }
