@@ -46,9 +46,7 @@ int game_ended_check(GUI_DATA * data, SIDE side){
    }
   return 0;
 }
-void update_board(GUI_DATA * data){
-  gtk_window_set_title (GTK_WINDOW (data->window), data->game->turn ? "CHESS! - Black To Move" : "CHESS! - White to Move");
-  // Update Move History
+void update_move_history(GUI_DATA * data){
   MOVE * move =  data->game->moves;
   data->move_history[0] = 0;
   strcpy(data->move_history, "MOVE HISTORY\n");
@@ -62,6 +60,11 @@ void update_board(GUI_DATA * data){
     }
   }
   gtk_label_set_text(data->move_history_display, data->move_history);
+}
+void update_board(GUI_DATA * data){
+  gtk_window_set_title (GTK_WINDOW (data->window), data->game->turn ? "CHESS! - Black To Move" : "CHESS! - White to Move");
+  // Update Move History
+  update_move_history(data);
   game_ended_check(data, 0);
   game_ended_check(data, 1);
   char * captured[2] = {calloc(64, 1), calloc(64, 1)};
@@ -169,9 +172,14 @@ void add_captured_piece_displays(GUI_DATA * data, GtkWidget * grid){
   gtk_style_context_add_class(gtk_widget_get_style_context(button), "what_black_captured");
   data->captured_piece_displays[1] = button;
 }
-void save_to_file(){
+void save_to_file(char * filepath, GUI_DATA * data){
+  FILE *fp = fopen(filepath, "w");
+  if (fp != NULL){
+    fputs(gtk_label_get_text(data->move_history_display), fp);
+    fclose(fp);
+  }
 }
-void open_save_dialog(){
+void open_save_dialog(GtkWidget * widget, GUI_DATA * data){
   GtkWidget *dialog;
   dialog = gtk_file_chooser_dialog_new ("Save File",
 					NULL,
@@ -180,11 +188,11 @@ void open_save_dialog(){
 					GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 					NULL);
   gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
-  gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), "game.chess");
+  gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), "move_history.txt");
   if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT){
     char *filename;
     filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-    save_to_file (filename);
+    save_to_file (filename, data);
     g_free (filename);
   }
   gtk_widget_destroy (dialog);
@@ -240,6 +248,7 @@ void activate (GtkApplication *app, gpointer gdata){
   gtk_grid_attach(GTK_GRID(grid), scrolledwindow, 10, 0, 20, 10);
   GtkWidget* save_button = gtk_button_new_with_label("Save Move History");
   gtk_grid_attach(GTK_GRID(grid), save_button, 10, 10, 20, 50);
+  g_signal_connect(save_button, "clicked", G_CALLBACK(open_save_dialog), gui_data);
   GtkStyleContext *context = gtk_widget_get_style_context(scrolledwindow);
   gtk_style_context_add_class(context, "move_history");
 
