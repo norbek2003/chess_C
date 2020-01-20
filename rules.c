@@ -46,14 +46,13 @@ int is_valid_move_pawn(GAME * game, PIECE * piece, int x, int y){
   int direction = piece->side ? -1 : 1;
   if(piece->x == x && abs(piece->y - y) <= 2 && !game->board[y][x]){
     if(piece->y + direction == y){
-      return 1;
+      return (y == 0 || y == 7) ? -1 : 1;
+    }else if((piece->y == (piece->side ? 6 : 1)) && (piece->y + (direction  * 2) == y)){
+      return (y == 0 || y == 7) ? -1 : 1;
     }
-    if((piece->y == (piece->side ? 6 : 1)) && (piece->y + (direction  * 2) == y)){
-      return 1;
-    }
-  }
-  if(abs(piece->x - x) == 1 && y - piece->y == direction && game->board[y][x] && game->board[y][x]->side != piece->side){
-    return 1;
+  }else if(abs(piece->x - x) == 1 && y - piece->y == direction &&
+	   game->board[y][x] && game->board[y][x]->side != piece->side){
+    return (y == 0 || y == 7) ? -1 : 1;
   }
   return 0;
 }

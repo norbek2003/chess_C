@@ -34,6 +34,7 @@ char * piece_symbol_unicode(PIECE * piece){
     return "♚";
   }
 }
+
 int game_ended_check(GUI_DATA * data, SIDE side){
   if(in_draw(data->game, side)){
     if(in_check(data->game, side)){
@@ -46,6 +47,38 @@ int game_ended_check(GUI_DATA * data, SIDE side){
    }
   return 0;
 }
+
+void promote_piece(GtkDialog *dialog, gint response_id, POSITION * pos){
+  g_print ("response is %d\n", response_id);
+  MOVE * move = pos->gui_data->game->moves;
+  while(move->next_move && move->next_move->next_move)
+    move = move->next_move;
+  printf("%d %d %d %d\n", move->from_x, move->from_y, move->to_x, move->to_y);
+  pos->gui_data->game->board[pos->y][pos->x]->type = response_id;
+  if(dialog)
+    gtk_widget_destroy (GTK_WIDGET (dialog));
+  memcpy(pos->gui_data->buffer,
+	 (char[6]){move->from_x + 65, move->from_y + 49, move->to_x + 65, move->to_y + 49, response_id, 0},
+	 sizeof(pos->gui_data->buffer));
+  update_board(pos->gui_data);
+}
+void show_promotion_dialog (POSITION * pos){
+  GtkWindow *window = NULL;
+  GtkWidget *dialog;
+  GtkWidget *content_area;
+  GtkWidget *label;
+  gint response_id;
+  dialog = gtk_dialog_new_with_buttons ("Promote Your Pawn!", window, GTK_DIALOG_MODAL, 
+                                        "BISHOP", Bishop,
+					"KNIGHT", Knight,
+					"ROOK", Rook,
+					"QUEEN",Queen,
+                                        NULL);
+  content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+  gtk_widget_show_all (dialog);
+  g_signal_connect (GTK_DIALOG (dialog), "response", G_CALLBACK (promote_piece), pos);
+}
+
 void update_move_history(GUI_DATA * data){
   MOVE * move =  data->game->moves;
   data->move_history[0] = 0;
@@ -97,6 +130,7 @@ void update_board(GUI_DATA * data){
   }
   
 }
+
 gboolean listen_for_move(GUI_DATA * data){
   //printf("%d listening %d\n", data->side, data->game->turn);
   char buffer[BUFFER_SIZE];
@@ -106,14 +140,20 @@ gboolean listen_for_move(GUI_DATA * data){
     buffer[1] -= 49;
     buffer[2] -= 65;
     buffer[3] -= 49;
-    if(attempt_piece_move(data->game, data->game->board[buffer[1]][buffer[0]], buffer[2], buffer[3])){
+    int r = attempt_piece_move(data->game, data->game->board[buffer[1]][buffer[0]], buffer[2], buffer[3]);
+    if(r){
       data->game->turn = !(data->game->turn);
+      if(buffer[4])
+	data->game->board[buffer[3]][buffer[2]]->type = buffer[4];
       update_board(data);
     }
   }else{
     //Filler move to stop the app from freezing on either side
-    char b[5] = {65, 49, 65, 49, 0};
-    write(data->server_socket, b, sizeof(b));
+    write(data->server_socket, data->buffer, sizeof(data->buffer));
+    if(strncmp(data->buffer, "A1A1", 4)){
+      data->game->turn = !(data->game->turn);
+    }
+    memcpy(data->buffer, (char[6]) {65, 49, 65, 49, 0, 0}, sizeof(data->buffer));
   }
   return TRUE;
 }
@@ -122,20 +162,14 @@ void button_press (GtkWidget *widget, gpointer data){
   POSITION * selected = p->gui_data->selected_piece;
   GAME * game = p->gui_data->game;
   if(selected){
-    if(attempt_piece_move(game, game->board[selected->y][selected->x], p->x, p->y)){
+    int r = attempt_piece_move(game, game->board[selected->y][selected->x], p->x, p->y);
+    if(r){
       p->gui_data->selected_piece = NULL;
+      if(r<1)
+	show_promotion_dialog(p);
       update_board(p->gui_data);
-      int move[] = {selected->x, selected->y, p->x, p->y, 0};
-      char buffer[5];
-      move[0] += 65;
-      move[1] += 49;
-      move[2] += 65;
-      move[3] += 49;
-      for(int i = 0; i < 4; i++) buffer[i] = move[i];
-      update_board(p->gui_data);
-      write(p->gui_data->server_socket, buffer, sizeof(buffer));
-      //printf("Sending %s\n", buffer);
-      game->turn = !(game->turn);
+      if(r > 0)
+	memcpy(p->gui_data->buffer, (char[6]){ selected->x + 65, selected->y + 49, p->x + 65, p->y + 49, 0}, sizeof(p->gui_data->buffer));
     }
     p->gui_data->selected_piece = NULL;
   }else{
@@ -144,6 +178,7 @@ void button_press (GtkWidget *widget, gpointer data){
   }
   update_board(p->gui_data);
 }
+
 void addEdge(GUI_DATA * data, GtkWidget * grid, int x, int y){
   char * label = calloc(1, 1);
   if(x == y - 1)
@@ -172,6 +207,7 @@ void add_captured_piece_displays(GUI_DATA * data, GtkWidget * grid){
   gtk_style_context_add_class(gtk_widget_get_style_context(button), "what_black_captured");
   data->captured_piece_displays[1] = button;
 }
+
 void save_to_file(char * filepath, GUI_DATA * data){
   FILE *fp = fopen(filepath, "w");
   if (fp != NULL){
@@ -197,12 +233,15 @@ void open_save_dialog(GtkWidget * widget, GUI_DATA * data){
   }
   gtk_widget_destroy (dialog);
 }
+
+
 void activate (GtkApplication *app, gpointer gdata){
   GUI_DATA * gui_data = gdata;
   GtkWidget *window;
   GtkWidget *grid;
   GtkWidget *button;
   gui_data->listener = g_timeout_add(1000, (GSourceFunc) listen_for_move, (gpointer) gui_data);
+  memcpy(gui_data->buffer, (char[6]) {65, 49, 65, 49, 0, 0}, sizeof(gui_data->buffer));
   window = gtk_application_window_new (app);
   gui_data->window = window;  
   gtk_container_set_border_width (GTK_CONTAINER (window), 10);
@@ -233,7 +272,6 @@ void activate (GtkApplication *app, gpointer gdata){
     addEdge(gui_data, grid, 9, i + 1);
   }
   //Move History
-
   GtkWidget* scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
   GtkWidget* textArea = gtk_label_new("");
   gui_data->move_history_display = GTK_LABEL(textArea);

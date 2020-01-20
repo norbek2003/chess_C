@@ -18,6 +18,7 @@ typedef struct gui_data{
   GtkWidget * captured_piece_displays[2];
   GtkLabel * move_history_display;
   char move_history[3000];
+  char buffer[6];
 } GUI_DATA;
 
 
