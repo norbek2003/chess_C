@@ -21,3 +21,9 @@
 ## Jan 14, 2020
 - Added GUI Feature to display pieces that you've captured.
 - Improved networking, got rid of timeout error.
+## Jan 19, 2020
+- Added GUI feature to display game's move history
+- Added button to save that information to a file
+## Jan 20, 2020
+- Added promotion
+- Refactored networking code to be faster and less prone to mistakes.
