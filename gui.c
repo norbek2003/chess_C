@@ -36,13 +36,17 @@ char * piece_symbol_unicode(PIECE * piece){
 }
 
 int game_ended_check(GUI_DATA * data, SIDE side){
+  if(data->game_over)
+    return 1;
   if(in_draw(data->game, side)){
     if(in_check(data->game, side)){
-      gtk_window_set_title (GTK_WINDOW (data->window), side ? "CHESS! - Black Wins!" : "CHESS! - White Wins!");
+      gtk_window_set_title (GTK_WINDOW (data->window), !side ? "CHESS! - Black Wins!" : "CHESS! - White Wins!");
     }else{
       gtk_window_set_title (GTK_WINDOW (data->window), "CHESS! - STALEMATE.");
     }
     g_source_remove(data->listener);
+    write(data->server_socket, data->buffer, sizeof(data->buffer));
+    data->game_over = 1;
     return 1;
    }
   return 0;
@@ -96,10 +100,7 @@ void update_move_history(GUI_DATA * data){
 }
 void update_board(GUI_DATA * data){
   gtk_window_set_title (GTK_WINDOW (data->window), data->game->turn ? "CHESS! - Black To Move" : "CHESS! - White to Move");
-  // Update Move History
   update_move_history(data);
-  game_ended_check(data, 0);
-  game_ended_check(data, 1);
   char * captured[2] = {calloc(64, 1), calloc(64, 1)};
   for(int i = 0; i < 32; i++){
     PIECE * p = data->game->pieces[i];
@@ -128,7 +129,6 @@ void update_board(GUI_DATA * data){
 	gtk_style_context_add_class(context,"possible_move");
     }
   }
-  
 }
 
 gboolean listen_for_move(GUI_DATA * data){
@@ -146,12 +146,18 @@ gboolean listen_for_move(GUI_DATA * data){
       if(buffer[4])
 	data->game->board[buffer[3]][buffer[2]]->type = buffer[4];
       update_board(data);
+      game_ended_check(data, data->side);
+
+
     }
   }else{
     //Filler move to stop the app from freezing on either side
     write(data->server_socket, data->buffer, sizeof(data->buffer));
     if(strncmp(data->buffer, "A1A1", 4)){
+
       data->game->turn = !(data->game->turn);
+      update_board(data);
+      game_ended_check(data, !(data->side));
     }
     memcpy(data->buffer, (char[6]) {65, 49, 65, 49, 0, 0}, sizeof(data->buffer));
   }
@@ -161,6 +167,8 @@ void button_press (GtkWidget *widget, gpointer data){
   POSITION * p = data;
   POSITION * selected = p->gui_data->selected_piece;
   GAME * game = p->gui_data->game;
+  if(p->gui_data->game_over)
+    return;
   if(selected){
     int r = attempt_piece_move(game, game->board[selected->y][selected->x], p->x, p->y);
     if(r){
@@ -240,10 +248,11 @@ void activate (GtkApplication *app, gpointer gdata){
   GtkWidget *window;
   GtkWidget *grid;
   GtkWidget *button;
-  gui_data->listener = g_timeout_add(1000, (GSourceFunc) listen_for_move, (gpointer) gui_data);
+  gui_data->listener = g_timeout_add(250, (GSourceFunc) listen_for_move, (gpointer) gui_data);
   memcpy(gui_data->buffer, (char[6]) {65, 49, 65, 49, 0, 0}, sizeof(gui_data->buffer));
   window = gtk_application_window_new (app);
-  gui_data->window = window;  
+  gui_data->window = window;
+  gui_data->game_over = 0;
   gtk_container_set_border_width (GTK_CONTAINER (window), 10);
   gtk_window_set_default_size (GTK_WINDOW (window), 700, 500);
   myCSS();

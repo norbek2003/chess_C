@@ -19,6 +19,7 @@ typedef struct gui_data{
   GtkLabel * move_history_display;
   char move_history[3000];
   char buffer[6];
+  int game_over;
 } GUI_DATA;
 
 
