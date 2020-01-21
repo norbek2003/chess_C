@@ -8,7 +8,7 @@
 ## How To Use
 1. Compile the program  `make`
 2. Start the server (WHITE) `./server`
-3. Start the client (BLACK) `/client <host_ip>`
+3. Start the client (BLACK) `./client <host_ip>`
 4. Play the game!
 
 ## Features
